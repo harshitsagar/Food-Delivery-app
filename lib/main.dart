@@ -8,7 +8,7 @@ import 'firebase_options.dart';
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = publishableKey;
+  // Stripe.publishableKey = publishableKey;
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
