@@ -1,16 +1,35 @@
-# quick_eats_app
+## Firebase Setup :
 
-food delivery app
+1. Get Firebase Config Files
+   Android:
+   Go to Firebase Console
 
-## Getting Started
+Add Android app → Package name: your.package.name
 
-This project is a starting point for a Flutter application.
+Download google-services.json
 
-A few resources to get you started if this is your first Flutter project:
+Place in: android/app/google-services.json
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+iOS:
+Add iOS app → Bundle ID: your.bundle.id
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Download GoogleService-Info.plist
+
+Place in: ios/Runner/GoogleService-Info.plist
+
+2. Generate Firebase Options
+   Run in terminal:
+   flutterfire configure
+
+3. Update .gitignore
+   Add these lines to your .gitignore:
+   android/app/google-services.json
+   ios/Runner/GoogleService-Info.plist
+   lib/firebase_options.dart
+
+4. Initialize Firebase
+   In your main.dart:
+   import 'firebase_options.dart';
+    await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+    );
