@@ -1,35 +1,36 @@
-## Firebase Setup :
+# How to Run
 
-1. Get Firebase Config Files
-   Android:
-   Go to Firebase Console
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/harshitsagar/Food-Delivery-app.git
 
-Add Android app → Package name: your.package.name
+2. **Install dependencies**
+   ```bash
+   flutter pub get
 
-Download google-services.json
+3. **Run the App**
+   ```bash
+    flutter run
 
-Place in: android/app/google-services.json
+# Firebase Setup Guide
 
-iOS:
-Add iOS app → Bundle ID: your.bundle.id
+## Step 1: Create Firebase Project
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Create new project: "Task Manager App"
+3. Register your app
 
-Download GoogleService-Info.plist
+## Step 2: Android Setup
+1. In Firebase Console, add Android app
+2. Package name: `com.example.taskmanager` (update with your package name)
+3. Download `google-services.json`
+4. Place in: `android/app/google-services.json`
 
-Place in: ios/Runner/GoogleService-Info.plist
+## Step 3: iOS Setup
+1. In Firebase Console, add iOS app
+2. Bundle ID: `com.example.taskmanager` (update with your bundle ID)
+3. Download `GoogleService-Info.plist`
+4. Place in: `ios/Runner/GoogleService-Info.plist`
 
-2. Generate Firebase Options
-   Run in terminal:
-   flutterfire configure
-
-3. Update .gitignore
-   Add these lines to your .gitignore:
-   android/app/google-services.json
-   ios/Runner/GoogleService-Info.plist
-   lib/firebase_options.dart
-
-4. Initialize Firebase
-   In your main.dart:
-   import 'firebase_options.dart';
-    await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-    );
+## Step 4: Enable Services
+1. **Authentication** → Sign-in method → Enable Email/Password
+2. **Firestore Database** → Create database in test mode
