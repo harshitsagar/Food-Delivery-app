@@ -1,35 +1,34 @@
 class UnboardingContent {
   String image;
-  String title;
+  String title1;
+  String title2;
   String description;
 
   UnboardingContent({
     required this.image,
-    required this.title,
-    required this.description
+    required this.title1,
+    required this.title2,
+    required this.description,
   });
-
 }
 
 List<UnboardingContent> contents = [
-
   UnboardingContent(
-      image: "images/screen1.png",
-      title: 'Select from Our Best Menu',
-      description: "Pick your food from our menu\n          More than 35 times"
+    image: "assets/images/onboarding/onboarding_img1.png",
+    title1: 'Discover',
+    title2: 'Delicious Food',
+    description: "Browse hundreds of dishes from\ntop restaurants near you.",
   ),
-
   UnboardingContent(
-      image: "images/screen2.png",
-      title: 'Easy and Online Payment ',
-      description: "You can pay cash on delivery \nand Card payment is available"
+    image: "assets/images/onboarding/onboarding_img2.png",
+    title1: 'Track',
+    title2: 'Every Order',
+    description: "Live tracking from restaurant\nto your doorstep.",
   ),
-
   UnboardingContent(
-      image: "images/screen3.png",
-      title: 'Quick Delivery at your Doorstep',
-      description: 'Deliver your food at your Doorstep \n- From Our Kitchen to Your Table!'
-  )
-
-] ;
-
+    image: "assets/images/onboarding/onboarding_img3.png",
+    title1: 'Exciting',
+    title2: 'Offers Awaits',
+    description: "Grab exclusive deals, discounts and\noffers on your favorite meals.",
+  ),
+];
