@@ -78,6 +78,7 @@ flutter:
   # assets:
   assets:
     - assets/images/onboarding/
+    - assets/images/auth/
     - images/
     - images/apple_logo.png
     - images/twitter.png

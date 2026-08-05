@@ -1,6 +1,4 @@
 import 'dart:io' show Platform;
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,9 +10,6 @@ import 'package:quick_eats_app/pages/notification_screen.dart';
 import 'package:quick_eats_app/service/database.dart';
 import 'package:quick_eats_app/service/shared_pref.dart';
 import 'package:quick_eats_app/widget/widget_support.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-
-// import 'package:twitter_login/twitter_login.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -24,43 +19,31 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
-
   String email = "", password = "";
-  TextEditingController useremailController = new TextEditingController();
-  TextEditingController userpasswordController = new TextEditingController();
+  TextEditingController useremailController = TextEditingController();
+  TextEditingController userpasswordController = TextEditingController();
+  bool _obscureText = true;
 
-  String? id , name , wallet ;
-
+  String? id, name, wallet;
   final _formkey = GlobalKey<FormState>();
 
   getTheSharedPref() async {
-
-    id = await SharedPreferenceHelper().getUserId() ;
-    name = await SharedPreferenceHelper().getUserName() ;
-    wallet = await SharedPreferenceHelper().getUserWallet() ;
-
-    setState(() {
-
-    });
-
+    id = await SharedPreferenceHelper().getUserId();
+    name = await SharedPreferenceHelper().getUserName();
+    wallet = await SharedPreferenceHelper().getUserWallet();
+    setState(() {});
   }
 
   onTheLoad() async {
-
     await getTheSharedPref();
-    setState(() {});
-
   }
 
   @override
   void initState() {
     super.initState();
-
     onTheLoad();
-
   }
 
-  // Sign in with Google .....
   loginWithGoogle() async {
     final auth = FirebaseAuth.instance;
     final googleSignIn = GoogleSignIn();
@@ -68,23 +51,10 @@ class _LogInState extends State<LogIn> {
     try {
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
-      if (googleSignInAccount == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.red,
-            content: Text("Google Sign-In canceled.")));
-        return;
-      }
+      if (googleSignInAccount == null) return;
 
       final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount.authentication;
-
-      if (googleSignInAuthentication.idToken == null ||
-          googleSignInAuthentication.accessToken == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.red,
-            content: Text("Google authentication failed.")));
-        return;
-      }
+          await googleSignInAccount.authentication;
 
       final AuthCredential authCredential = GoogleAuthProvider.credential(
           accessToken: googleSignInAuthentication.accessToken,
@@ -93,712 +63,318 @@ class _LogInState extends State<LogIn> {
       final UserCredential userCredential = await auth.signInWithCredential(authCredential);
       final User? user = userCredential.user;
 
-      if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.red,
-            content: Text("User is null, login failed.")));
-        return;
-      }
+      if (user == null) return;
 
-      // Store user details
       Map<String, dynamic> addUserInfo = {
         "Name": user.displayName ?? "Google User",
         "Email": user.email ?? "no-email@example.com",
-        "Wallet": wallet,
+        "Wallet": wallet ?? "0",
         "Id": user.uid,
         "login": "Google",
       };
 
       await DatabaseMethods().addUserDetail(addUserInfo, user.uid);
 
-      // Save user info locally
       await SharedPreferenceHelper().saveUserName(user.displayName ?? "Google User");
       await SharedPreferenceHelper().saveUserEmail(user.email ?? "no-email@example.com");
-      await SharedPreferenceHelper().saveUserWallet(wallet?? '0');
+      await SharedPreferenceHelper().saveUserWallet(wallet ?? '0');
       await SharedPreferenceHelper().saveUserId(user.uid);
       await SharedPreferenceHelper().saveUserLOGIN("Google");
 
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => BottomNav()));
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: Duration(milliseconds: 2000),
-          backgroundColor: Colors.orangeAccent,
-          content: Text("Logged In Successfully", style: TextStyle(fontSize: 20))));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNav()));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.red, content: Text("Error: ${e.toString()}")));
     }
   }
 
-
-  // login with twitter .......
-  /*
-  signInWithTwitter() async {
-    final TwitterLogin twitterLogin = TwitterLogin(
-        apiKey: "0uXPNPfSfMUykAkJda1GTGocq",
-        apiSecretKey: "vSHjMfkCOxr4DFdPM24t5Tlc3KFPBhpvTtp4QMvSIYKXmbqsDt",
-        redirectURI: "socialauth://");
-
-    final auth = FirebaseAuth.instance;
-    final authResult = await twitterLogin.loginV2();
-
-    if (authResult.status == TwitterLoginStatus.loggedIn) {
-      try {
-
-        final credential = TwitterAuthProvider.credential(
-            accessToken: authResult.authToken!,
-            secret: authResult.authTokenSecret!);
-        await auth.signInWithCredential(credential);
-
-        // For Database Configurations .......
-        final UserCredential userCredential = await auth.signInWithCredential(credential) ;
-        final User? user = userCredential.user ;
-
-        // Retrieve the email, username, and ID
-        final String? email = user!.email;
-        final String? username = user!.displayName;
-        final String uid = user!.uid;
-        final String login = "Twitter";
-
-
-        Map<String, dynamic> addUserInfo = {
-
-          "Name" : username,
-          "Email" : email,
-          "Wallet" : wallet,
-          "Id" : uid,
-          "login" : "Twitter"
-
-        };
-
-        await DatabaseMethods().addUserDetail(addUserInfo, uid);
-
-        // now we save our info locally with the help of shared preferences ......
-        await SharedPreferenceHelper().saveUserName(username!);
-        await SharedPreferenceHelper().saveUserEmail(email==null ? "" : email);
-        await SharedPreferenceHelper().saveUserWallet(wallet!);
-        await SharedPreferenceHelper().saveUserId(uid);
-        await SharedPreferenceHelper().saveUserLOGIN(login);
-
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => BottomNav()));
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: Duration(milliseconds: 1500),
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Logged In Successfully",
-              style: TextStyle(fontSize: 20),
-            )));
-      } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: Duration(milliseconds: 2000),
-            backgroundColor: Colors.red,
-            content: Text(
-              e.toString(),
-              style: TextStyle(fontSize: 20),
-            )));
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: Duration(milliseconds: 2000),
-          backgroundColor: Colors.red,
-          content: Text(
-            "Login Failed",
-            style: TextStyle(fontSize: 20),
-          )));
-    }
-  }
-
-   */
-
-  // Sign in with Apple .....
-  signInWithApple() async {
-
-    try {
-
-      final FirebaseAuth _auth = FirebaseAuth.instance;
-
-      if (Platform.isIOS || Platform.isMacOS) {
-
-        final appleCredential = await SignInWithApple.getAppleIDCredential(
-          scopes: [
-            AppleIDAuthorizationScopes.email,
-            AppleIDAuthorizationScopes.fullName,
-          ],
-        );
-
-        final oauthCredential = OAuthProvider("https://fooddeliveryapp-65851.firebaseapp.com/__/auth/handler").credential(
-          idToken: appleCredential.identityToken,
-          accessToken: appleCredential.authorizationCode,
-        );
-
-        final UserCredential userCredential = await _auth.signInWithCredential(oauthCredential);
-        final User? user = userCredential.user;
-
-        // For Database Configurations .......
-        // Retrieve the email, username, and ID
-        final String? email = user!.email;
-        final String? username = user!.displayName;
-        final String uid = user!.uid;
-        final String login = "Apple";
-
-
-        Map<String, dynamic> addUserInfo = {
-
-          "Name" : username,
-          "Email" : email,
-          "Wallet" : wallet,
-          "Id" : uid,
-          "login" : "Apple"
-
-        };
-
-        await DatabaseMethods().addUserDetail(addUserInfo, uid);
-
-        // now we save our info locally with the help of shared preferences ......
-        await SharedPreferenceHelper().saveUserName(username!);
-        await SharedPreferenceHelper().saveUserEmail(email==null ? "" : email);
-        await SharedPreferenceHelper().saveUserWallet(wallet!);
-        await SharedPreferenceHelper().saveUserId(uid);
-        await SharedPreferenceHelper().saveUserLOGIN(login);
-
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => BottomNav()));
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: Duration(milliseconds: 1500),
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Logged In Successfully",
-              style: TextStyle(fontSize: 20),
-            )));
-
-      }
-
-      else if (Platform.isAndroid || Platform.isWindows) {
-
-        // For Android, you need to use a custom web authentication
-        // This part requires additional setup and handling
-
-        // Example for Android (not a full implementation)
-        final appleCredential = await SignInWithApple.getAppleIDCredential(
-          scopes: [
-            AppleIDAuthorizationScopes.email,
-            AppleIDAuthorizationScopes.fullName,
-          ],
-          webAuthenticationOptions: WebAuthenticationOptions(
-            redirectUri: Uri.parse('https://example.com/callbacks/sign_in_with_apple'),
-            clientId: 'com.example.foodDeliveryApp',
-          ),
-        );
-
-        final oauthCredential = OAuthProvider("apple.com").credential(
-          idToken: appleCredential.identityToken,
-          accessToken: appleCredential.authorizationCode,
-        );
-
-        final UserCredential userCredential = await _auth.signInWithCredential(oauthCredential);
-        final User? user = userCredential.user;
-
-        // For Database Configurations .......
-        // Retrieve the email, username, and ID
-        final String? email = user!.email;
-        final String? username = user!.displayName;
-        final String uid = user!.uid;
-        final String login = "Apple";
-
-        Map<String, dynamic> addUserInfo = {
-
-          "Name" : username,
-          "Email" : email,
-          "Wallet" : wallet,
-          "Id" : uid,
-          "login" : "Apple"
-
-        };
-
-        await DatabaseMethods().addUserDetail(addUserInfo, uid);
-
-        // now we save our info locally with the help of shared preferences ......
-        await SharedPreferenceHelper().saveUserName(username!);
-        await SharedPreferenceHelper().saveUserEmail(email==null ? "" : email);
-        await SharedPreferenceHelper().saveUserWallet(wallet!);
-        await SharedPreferenceHelper().saveUserId(uid);
-        await SharedPreferenceHelper().saveUserLOGIN(login);
-
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => BottomNav()));
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: Duration(milliseconds: 1500),
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Logged In Successfully",
-              style: TextStyle(fontSize: 20),
-            )));
-
-      }
-
-      else {
-
-        final appleCredential = await SignInWithApple.getAppleIDCredential(
-          scopes: [
-            AppleIDAuthorizationScopes.email,
-            AppleIDAuthorizationScopes.fullName,
-          ],
-        );
-
-        final oauthCredential = OAuthProvider("https://fooddeliveryapp-65851.firebaseapp.com/__/auth/handler").credential(
-          idToken: appleCredential.identityToken,
-          accessToken: appleCredential.authorizationCode,
-        );
-
-        final UserCredential userCredential = await _auth.signInWithCredential(oauthCredential);
-        final User? user = userCredential.user;
-
-        // For Database Configurations .......
-        // Retrieve the email, username, and ID
-        final String? email = user!.email;
-        final String? username = user!.displayName;
-        final String uid = user!.uid;
-        final String login = "Apple";
-
-
-        Map<String, dynamic> addUserInfo = {
-
-          "Name" : username,
-          "Email" : email,
-          "Wallet" : wallet,
-          "Id" : uid,
-          "login" : "Apple"
-
-        };
-
-        await DatabaseMethods().addUserDetail(addUserInfo, uid);
-
-        // now we save our info locally with the help of shared preferences ......
-        await SharedPreferenceHelper().saveUserName(username!);
-        await SharedPreferenceHelper().saveUserEmail(email==null ? "" : email);
-        await SharedPreferenceHelper().saveUserWallet(wallet!);
-        await SharedPreferenceHelper().saveUserId(uid);
-        await SharedPreferenceHelper().saveUserLOGIN(login);
-
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => BottomNav()));
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: Duration(milliseconds: 1500),
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Logged In Successfully",
-              style: TextStyle(fontSize: 20),
-            )));
-
-      }
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-            style: TextStyle(fontSize: 18, color: Colors.red),
-          ),
-        ),
-      );
-    }
-
-  }
-  
-  // sign in with email and password ......
   userLogin() async {
     try {
       UserCredential userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
 
-      // Get the logged in user
       User? user = userCredential.user;
 
       if (user != null) {
-        // Check if user exists in Firestore
         DocumentSnapshot userDoc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
 
         if (!userDoc.exists) {
-          // User doesn't exist in Firestore, create new record
           Map<String, dynamic> addUserInfo = {
-            "Name": email.split('@')[0], // Default name from email
+            "Name": email.split('@')[0],
             "Email": email,
             "Wallet": "0",
             "Id": user.uid,
             "login": "Email",
           };
-
           await DatabaseMethods().addUserDetail(addUserInfo, user.uid);
         }
 
-        // Save user info locally
         await SharedPreferenceHelper().saveUserId(user.uid);
         await SharedPreferenceHelper().saveUserEmail(email);
         await SharedPreferenceHelper().saveUserWallet('0');
         await SharedPreferenceHelper().saveUserLOGIN("Email");
 
-        // Get name from Firestore or use email prefix as fallback
         String name = userDoc.exists ? userDoc.get('Name') : email.split('@')[0];
         await SharedPreferenceHelper().saveUserName(name);
 
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => NotificationScreen()));
-
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            duration: Duration(milliseconds: 1500),
-            backgroundColor: Colors.orangeAccent,
-            content: Text(
-              "Logged In Successfully",
-              style: TextStyle(fontSize: 20),
-            )));
-      } else {
-        throw Exception("User is null after login");
+            context, MaterialPageRoute(builder: (context) => const NotificationScreen()));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          backgroundColor: Colors.orangeAccent,
-          content: Text(
-            e.toString(),
-            style: TextStyle(fontSize: 18),
-          )));
+          backgroundColor: Colors.redAccent,
+          content: Text(e.toString(), style: const TextStyle(fontSize: 18))));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Container(
-        child: Stack(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 2,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [Colors.blue, Colors.orange, Colors.red]),
-              ),
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          // FIXED BACKGROUND: Does not move or resize
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: MediaQuery.of(context).size.height, // Full screen height
+            child: Image.asset(
+              "assets/images/auth/auth_bg.png",
+              fit: BoxFit.cover,
+              alignment: Alignment.topCenter, // Anchors the image to the top
             ),
-            Container(
-              margin:
-                  EdgeInsets.only(top: MediaQuery.of(context).size.height / 3),
-              height: MediaQuery.of(context).size.height / 2,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
-              ),
-              child: Text(""),
-            ),
-            Container(
-              margin: EdgeInsets.only(top: 30, left: 20, right: 20),
-              child: ListView(
-                children: [
-                  Center(
-                    child: Image.asset(
-                      "images/logo.png",
-                      width: MediaQuery.of(context).size.width / 1.2,
-                      fit: BoxFit.cover,
+          ),
+          
+          // SCROLLABLE FORM: Moves up when keyboard opens
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height * 0.54),
+                
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(top: 12, left: 25, right: 25, bottom: 35),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(25),
+                      topRight: Radius.circular(25),
                     ),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -5)),
+                    ],
                   ),
-
-                  SizedBox(
-                    height: 50,
-                  ),
-
-                  Material(
-                    elevation: 5,
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      padding: EdgeInsets.only(left: 20, right: 20),
-                      width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height / 2,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Form(
-                        key: _formkey,
-                        child: Column(
+                  child: Form(
+                    key: _formkey,
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 5),
+                        Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(color: Colors.orangeAccent, borderRadius: BorderRadius.circular(10)),
+                        ),
+                        const SizedBox(height: 25),
+                        RichText(
+                          text: const TextSpan(
+                            text: 'Welcome ',
+                            style: TextStyle(
+                              color: Color(0xFF333333),
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Poppins',
+                            ),
+                            children: <TextSpan>[
+                              TextSpan(text: 'Back!', style: TextStyle(color: Colors.orangeAccent)),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Login to continue to your account",
+                          style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontFamily: 'Poppins'),
+                        ),
+                        const SizedBox(height: 30),
+                        
+                        TextFormField(
+                          controller: useremailController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Please Enter Email';
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Email Address",
+                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            prefixIcon: const Icon(Icons.email_outlined, color: Colors.orangeAccent),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: Colors.orangeAccent)),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        
+                        TextFormField(
+                          controller: userpasswordController,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) return 'Please Enter Password';
+                            return null;
+                          },
+                          obscureText: _obscureText,
+                          decoration: InputDecoration(
+                            hintText: "Password",
+                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            prefixIcon: const Icon(Icons.lock_outline, color: Colors.orangeAccent),
+                            suffixIcon: GestureDetector(
+                              onTap: () => setState(() => _obscureText = !_obscureText),
+                              child: Icon(_obscureText ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.grey.shade400),
+                            ),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
+                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: const BorderSide(color: Colors.orangeAccent)),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 12),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPassword())),
+                            child: RichText(
+                              text: const TextSpan(
+                                text: 'Forgot ',
+                                style: TextStyle(color: Colors.black54, fontSize: 13),
+                                children: [
+                                  TextSpan(text: 'Password?', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        
+                        GestureDetector(
+                          onTap: () {
+                            if (_formkey.currentState!.validate()) {
+                              setState(() {
+                                email = useremailController.text;
+                                password = userpasswordController.text;
+                              });
+                              userLogin();
+                            }
+                          },
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 15),
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(colors: [Colors.orange, Colors.deepOrange]),
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [BoxShadow(color: Colors.orange.withOpacity(0.3), spreadRadius: 1, blurRadius: 8, offset: const Offset(0, 4))],
+                            ),
+                            child: const Center(
+                              child: Text("Login", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                            ),
+                          ),
+                        ),
+                        
+                        const SizedBox(height: 25),
+                        Row(
                           children: [
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Text(
-                              "Login ",
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 26,
-                                fontWeight: FontWeight.w600,
-                                fontFamily: 'Poppins',
-                              ),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            TextFormField(
-                              controller: useremailController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please Enter Email';
-                                }
-
-                                return null;
-                              },
-                              decoration: InputDecoration(
-                                  hintText: "Email",
-                                  hintStyle: AppWidget.semiBoldFieldStyle(),
-                                  prefixIcon: Icon(Icons.email_outlined)),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            TextFormField(
-                              controller: userpasswordController,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please Enter Password';
-                                }
-
-                                return null;
-                              },
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                  hintText: "Password",
-                                  hintStyle: AppWidget.semiBoldFieldStyle(),
-                                  prefixIcon: Icon(Icons.password_outlined)),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ForgotPassword()));
-                              },
-                              child: Container(
-                                alignment: Alignment.topRight,
-                                child: Text(
-                                  "Forgot Password?",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    fontFamily: 'Poppins',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            SizedBox(
-                              height: 70,
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                if (_formkey.currentState!.validate()) {
-                                  setState(() {
-                                    email = useremailController.text;
-                                    password = userpasswordController.text;
-                                  });
-                                }
-
-                                userLogin();
-                              },
-                              child: Material(
-                                elevation: 10,
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(vertical: 8),
-                                  width: 200,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [Colors.orange, Colors.red]),
-                                    borderRadius: BorderRadius.circular(20.0),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      "LOGIN",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontFamily: 'Poppins1',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            Expanded(child: Divider(color: Colors.grey.shade300)),
+                            Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: Text("Or continue with", style: TextStyle(color: Colors.grey.shade500, fontSize: 12))),
+                            Expanded(child: Divider(color: Colors.grey.shade300)),
                           ],
                         ),
-                      ),
-                    ),
-                  ),
-
-                  SizedBox(
-                    height: 40,
-                  ),
-
-                  // or continue with .......
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.8,
-                            color: Colors.black,
+                        const SizedBox(height: 25),
+                        
+                        GestureDetector(
+                          onTap: () async => await loginWithGoogle(),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(color: Colors.grey.shade100),
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 5))],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset('images/google_logo.png', height: 22),
+                                const SizedBox(width: 10),
+                                const Text("Continue with Google", style: TextStyle(color: Colors.black87, fontSize: 15, fontWeight: FontWeight.w500)),
+                              ],
+                            ),
                           ),
                         ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(
-                            'Or continue with',
-                            style: TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                        Expanded(
-                          child: Divider(
-                            thickness: 0.8,
-                            color: Colors.black,
-                          ),
+                        
+                        const SizedBox(height: 30),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text("Don't have an account? ", style: TextStyle(color: Colors.black87, fontSize: 14)),
+                            GestureDetector(
+                              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUp())),
+                              child: const Text("Sign up", style: TextStyle(color: Colors.orangeAccent, fontSize: 14, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-
-                  SizedBox(
-                    height: 30,
-                  ),
-
-                  // google + twitter + apple sign-In buttons .....
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                ),
+                
+                Container(
+                  color: Colors.white,
+                  child: Stack(
                     children: [
-                      // google button
-                      GestureDetector(
-                        onTap: () async {
-                          await loginWithGoogle();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[200],
-                          ),
-                          child: Image.asset(
-                            'images/google_logo.png',
-                            height: 35,
-                          ),
-                        ),
+                      CustomPaint(
+                        size: Size(MediaQuery.of(context).size.width, 80),
+                        painter: BottomWavePainter(),
                       ),
-
-                      const SizedBox(
-                        width: 50,
-                      ),
-
-                      // twitter button
-                      GestureDetector(
-                        onTap: () async {
-                          // await signInWithTwitter();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[200],
-                          ),
-                          child: Image.asset(
-                            'images/twitter.png',
-                            height: 35,
-                          ),
-                        ),
-                      ),
-
-                      const SizedBox(
-                        width: 50,
-                      ),
-
-                      // apple button
-                      GestureDetector(
-                        onTap: () async {
-                          await signInWithApple();
-                        },
-                        child: Container(
-                          padding: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey[200],
-                          ),
-                          child: Image.asset(
-                            'images/apple_logo.png',
-                            height: 35,
-                          ),
+                      Positioned(
+                        bottom: 20,
+                        left: 0,
+                        right: 0,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.fastfood_outlined, color: Colors.orangeAccent.withOpacity(0.3), size: 24),
+                            Icon(Icons.local_pizza_outlined, color: Colors.orangeAccent.withOpacity(0.3), size: 24),
+                            Icon(Icons.lunch_dining_outlined, color: Colors.orangeAccent.withOpacity(0.3), size: 24),
+                            Icon(Icons.icecream_outlined, color: Colors.orangeAccent.withOpacity(0.3), size: 24),
+                          ],
                         ),
                       ),
                     ],
                   ),
-
-                  SizedBox(
-                    height: 45,
-                  ),
-
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignUp()),
-                      );
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-
-                        Text(
-                          "Don't have an account? ",
-                          style: TextStyle(
-                              fontSize: 17,
-                              color: Colors.black87,
-                              fontWeight: FontWeight.w500),
-                        ),
-
-                        Text(
-                          "Sign up",
-                          style: TextStyle(
-                              fontSize: 17,
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w800),
-                        ),
-
-                      ],
-                    )
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+}
+
+class BottomWavePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()..color = Colors.orangeAccent.withOpacity(0.15)..style = PaintingStyle.fill;
+    var path = Path();
+    path.moveTo(0, size.height * 0.4);
+    path.quadraticBezierTo(size.width * 0.25, size.height * 0.1, size.width * 0.5, size.height * 0.4);
+    path.quadraticBezierTo(size.width * 0.75, size.height * 0.7, size.width, size.height * 0.4);
+    path.lineTo(size.width, size.height);
+    path.lineTo(0, size.height);
+    path.close();
+    canvas.drawPath(path, paint);
+  }
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
