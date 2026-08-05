@@ -168,7 +168,7 @@ class _OnboardState extends State<Onboard> {
                       ],
                     ),
                     height: 65,
-                    margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 30),
+                    margin: const EdgeInsets.symmetric(horizontal: 45, vertical: 30),
                     width: double.infinity,
                     child: Stack(
                       children: [
@@ -178,7 +178,7 @@ class _OnboardState extends State<Onboard> {
                             style: GoogleFonts.inter(
                               color: Colors.white,
                               fontSize: 20,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
