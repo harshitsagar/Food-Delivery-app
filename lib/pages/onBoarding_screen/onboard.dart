@@ -171,25 +171,23 @@ class _OnboardState extends State<Onboard> {
                     margin: const EdgeInsets.symmetric(horizontal: 45, vertical: 30),
                     width: double.infinity,
                     child: Stack(
+                      alignment: Alignment.center,
                       children: [
-                        Center(
-                          child: Text(
-                            currentIndex == contents.length - 1 ? "Get Started" : "Next",
-                            style: GoogleFonts.inter(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                            ),
+                        Text(
+                          currentIndex == contents.length - 1 ? "Get Started" : "Next",
+                          style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 1.2,
                           ),
                         ),
-                        Positioned(
+                        const Positioned(
                           right: 25,
-                          top: 0,
-                          bottom: 0,
-                          child: const Icon(
+                          child: Icon(
                             Icons.arrow_forward,
                             color: Colors.white,
-                            size: 28,
+                            size: 24,
                           ),
                         ),
                       ],
