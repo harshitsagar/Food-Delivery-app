@@ -208,7 +208,7 @@ class _LogInState extends State<LogIn> {
                           },
                           decoration: InputDecoration(
                             hintText: "Email Address",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                             prefixIcon: const Icon(Icons.email_outlined, color: Colors.orangeAccent),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
@@ -226,7 +226,7 @@ class _LogInState extends State<LogIn> {
                           obscureText: _obscureText,
                           decoration: InputDecoration(
                             hintText: "Password",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                             prefixIcon: const Icon(Icons.lock_outline, color: Colors.orangeAccent),
                             suffixIcon: GestureDetector(
                               onTap: () => setState(() => _obscureText = !_obscureText),

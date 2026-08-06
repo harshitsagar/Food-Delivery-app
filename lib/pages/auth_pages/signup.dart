@@ -179,7 +179,7 @@ class _SignUpState extends State<SignUp> {
                           },
                           decoration: InputDecoration(
                             hintText: "Name",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                             prefixIcon: const Icon(Icons.person_outline, color: Colors.orangeAccent),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
@@ -196,7 +196,7 @@ class _SignUpState extends State<SignUp> {
                           },
                           decoration: InputDecoration(
                             hintText: "Email",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                             prefixIcon: const Icon(Icons.email_outlined, color: Colors.orangeAccent),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
                             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(15), borderSide: BorderSide(color: Colors.grey.shade200)),
@@ -214,7 +214,7 @@ class _SignUpState extends State<SignUp> {
                           obscureText: _obscureText,
                           decoration: InputDecoration(
                             hintText: "Password",
-                            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+                            hintStyle: TextStyle(color: Colors.grey, fontSize: 14),
                             prefixIcon: const Icon(Icons.lock_outline, color: Colors.orangeAccent),
                             suffixIcon: GestureDetector(
                               onTap: () => setState(() => _obscureText = !_obscureText),
