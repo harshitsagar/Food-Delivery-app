@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quick_eats_app/core/constant/app_constants.dart';
 import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
 import 'package:quick_eats_app/core/widget/circular_loader.dart';
@@ -24,7 +27,7 @@ class _SplashViewState extends State<SplashView> {
   }
 
   void _startNavigationTimer() {
-    Timer(const Duration(seconds: 3), () {
+    Timer(const Duration(seconds: AppConstants.splashDuration), () {
       _checkNavigation();
     });
   }
@@ -44,7 +47,7 @@ class _SplashViewState extends State<SplashView> {
         }
       }
     } catch (e) {
-      debugPrint("Splash Navigation Error: $e");
+      debugPrint("${TextConst.splashNavigationError}$e");
       Get.offAllNamed(AppRoute.onboarding); // Fallback
     }
   }
@@ -71,7 +74,7 @@ class _SplashViewState extends State<SplashView> {
                   children: [
                     SizedBox(height: 50.h),
                     Image.asset(
-                      'images/splash_logo.png',
+                      ImageConst.splashLogo,
                       height: 0.22.sh,
                     ),
                     ShaderMask(
@@ -84,7 +87,7 @@ class _SplashViewState extends State<SplashView> {
                         end: Alignment.bottomCenter,
                       ).createShader(bounds),
                       child: Text(
-                        'Quick Eats',
+                        TextConst.appName,
                         style: GoogleFonts.inter(
                           fontSize: 42.sp,
                           fontWeight: FontWeight.bold,

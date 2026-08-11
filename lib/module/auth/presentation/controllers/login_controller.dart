@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/core/services/database_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
@@ -71,7 +72,7 @@ class LoginController extends GetxController {
       Get.offAllNamed(AppRoute.notifications);
     } catch (e) {
       loading.value = false;
-      Get.snackbar("Error", e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
@@ -80,7 +81,7 @@ class LoginController extends GetxController {
     String password = userpasswordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      Get.snackbar("Error", "Please enter email and password", backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, TextConst.enterEmailPassword, backgroundColor: Colors.red, colorText: Colors.white);
       return;
     }
 
@@ -121,7 +122,7 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       loading.value = false;
-      Get.snackbar("Error", e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 

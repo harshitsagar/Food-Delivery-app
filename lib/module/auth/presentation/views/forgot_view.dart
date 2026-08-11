@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/module/auth/presentation/controllers/forgot_controller.dart';
 
@@ -21,7 +23,7 @@ class ForgotView extends GetView<ForgotController> {
             right: 0,
             height: 1.sh,
             child: Image.asset(
-              "assets/images/auth/auth_bg.png",
+              ImageConst.authBg,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
             ),
@@ -56,7 +58,7 @@ class ForgotView extends GetView<ForgotController> {
                         SizedBox(height: 25.h),
                         RichText(
                           text: TextSpan(
-                            text: 'Forgot ',
+                            text: TextConst.forgot,
                             style: TextStyle(
                               color: const Color(0xFF333333),
                               fontSize: 28.sp,
@@ -64,13 +66,13 @@ class ForgotView extends GetView<ForgotController> {
                               fontFamily: 'Poppins',
                             ),
                             children: const <TextSpan>[
-                              TextSpan(text: 'Password?', style: TextStyle(color: Colors.orangeAccent)),
+                              TextSpan(text: TextConst.passwordQuestion, style: TextStyle(color: Colors.orangeAccent)),
                             ],
                           ),
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          "Enter your email to recover your password",
+                          TextConst.forgotSubtitle,
                           style: TextStyle(color: Colors.black54, fontSize: 14.sp, fontFamily: 'Poppins'),
                         ),
                         SizedBox(height: 30.h),
@@ -78,11 +80,11 @@ class ForgotView extends GetView<ForgotController> {
                         TextFormField(
                           controller: controller.emailController,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please Enter Email';
+                            if (value == null || value.isEmpty) return TextConst.enterEmail;
                             return null;
                           },
                           decoration: InputDecoration(
-                            hintText: "Email Address",
+                            hintText: TextConst.emailHint,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
                             prefixIcon: Icon(Icons.email_outlined, color: Colors.orangeAccent, size: 22.r),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15.r), borderSide: const BorderSide(color: Color(0xFFEEEEEE))),
@@ -110,7 +112,7 @@ class ForgotView extends GetView<ForgotController> {
                             child: Center(
                               child: controller.loading.value 
                                 ? SizedBox(height: 20.r, width: 20.r, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : Text("Send Recovery Email", style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                                : Text(TextConst.sendRecoveryEmail, style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
                             ),
                           ),
                         )),
@@ -119,10 +121,10 @@ class ForgotView extends GetView<ForgotController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Don't have an account? ", style: TextStyle(color: Colors.black87, fontSize: 14.sp)),
+                            Text(TextConst.dontHaveAccount, style: TextStyle(color: Colors.black87, fontSize: 14.sp)),
                             GestureDetector(
                               onTap: () => Get.toNamed(AppRoute.signup),
-                              child: Text("Sign up", style: TextStyle(color: Colors.orangeAccent, fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                              child: Text(TextConst.signUp, style: TextStyle(color: Colors.orangeAccent, fontSize: 14.sp, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),

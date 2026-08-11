@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 
 class ForgotController extends GetxController {
   final emailController = TextEditingController();
@@ -9,7 +10,7 @@ class ForgotController extends GetxController {
   Future<void> resetPassword() async {
     String email = emailController.text.trim();
     if (email.isEmpty) {
-      Get.snackbar("Error", "Please enter your email", backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, TextConst.enterYourEmail, backgroundColor: Colors.red, colorText: Colors.white);
       return;
     }
 
@@ -17,11 +18,11 @@ class ForgotController extends GetxController {
       loading.value = true;
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
       loading.value = false;
-      Get.snackbar("Success", "Password Reset Email has been sent to your email!", 
+      Get.snackbar(TextConst.success, TextConst.passwordResetEmailSent, 
           backgroundColor: Colors.white, colorText: Colors.black);
     } catch (e) {
       loading.value = false;
-      Get.snackbar("Error", e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 

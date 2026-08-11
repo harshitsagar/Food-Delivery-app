@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/module/auth/presentation/controllers/signup_controller.dart';
 
@@ -21,7 +23,7 @@ class SignupView extends GetView<SignupController> {
             right: 0,
             height: 1.sh,
             child: Image.asset(
-              "assets/images/auth/auth_bg.png",
+              ImageConst.authBg,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
             ),
@@ -56,7 +58,7 @@ class SignupView extends GetView<SignupController> {
                         SizedBox(height: 25.h),
                         RichText(
                           text: TextSpan(
-                            text: 'Sign ',
+                            text: TextConst.signUpPrefix,
                             style: TextStyle(
                               color: const Color(0xFF333333),
                               fontSize: 28.sp,
@@ -64,13 +66,13 @@ class SignupView extends GetView<SignupController> {
                               fontFamily: 'Poppins',
                             ),
                             children: const <TextSpan>[
-                              TextSpan(text: 'up', style: TextStyle(color: Colors.orangeAccent)),
+                              TextSpan(text: TextConst.signUpSuffix, style: TextStyle(color: Colors.orangeAccent)),
                             ],
                           ),
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          "Create your account and get started",
+                          TextConst.signUpSubtitle,
                           style: TextStyle(color: Colors.black54, fontSize: 14.sp, fontFamily: 'Poppins'),
                         ),
                         SizedBox(height: 30.h),
@@ -79,14 +81,14 @@ class SignupView extends GetView<SignupController> {
                           controller: controller.nameController,
                           focusNode: controller.nameFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return "Please Enter Name";
+                            if (value == null || value.isEmpty) return TextConst.enterName;
                             return null;
                           },
                           onFieldSubmitted: (value) {
                             FocusScope.of(context).requestFocus(controller.emailFocusNode);
                           },
                           decoration: InputDecoration(
-                            hintText: "Name",
+                            hintText: TextConst.nameHint,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
                             prefixIcon: Icon(Icons.person_outline, color: Colors.orangeAccent, size: 22.r),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15.r), borderSide: const BorderSide(color: Color(0xFFEEEEEE))),
@@ -100,14 +102,14 @@ class SignupView extends GetView<SignupController> {
                           controller: controller.emailController,
                           focusNode: controller.emailFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return "Please Enter Email";
+                            if (value == null || value.isEmpty) return TextConst.enterEmail;
                             return null;
                           },
                           onFieldSubmitted: (value) {
                             FocusScope.of(context).requestFocus(controller.passwordFocusNode);
                           },
                           decoration: InputDecoration(
-                            hintText: "Email",
+                            hintText: TextConst.email,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
                             prefixIcon: Icon(Icons.email_outlined, color: Colors.orangeAccent, size: 22.r),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15.r), borderSide: const BorderSide(color: Color(0xFFEEEEEE))),
@@ -121,12 +123,12 @@ class SignupView extends GetView<SignupController> {
                           controller: controller.passwordController,
                           focusNode: controller.passwordFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return "Please Enter Password";
+                            if (value == null || value.isEmpty) return TextConst.enterPassword;
                             return null;
                           },
                           obscureText: controller.obscureText.value,
                           decoration: InputDecoration(
-                            hintText: "Password",
+                            hintText: TextConst.passwordHint,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
                             prefixIcon: Icon(Icons.lock_outline, color: Colors.orangeAccent, size: 22.r),
                             suffixIcon: GestureDetector(
@@ -157,7 +159,7 @@ class SignupView extends GetView<SignupController> {
                             child: Center(
                               child: controller.loading.value
                                 ? SizedBox(height: 20.r, width: 20.r, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : Text("SIGN UP", style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                                : Text(TextConst.signUpButton, style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
                             ),
                           ),
                         )),
@@ -165,7 +167,7 @@ class SignupView extends GetView<SignupController> {
                         Row(
                           children: [
                             Expanded(child: Divider(color: Colors.grey.shade300)),
-                            Padding(padding: EdgeInsets.symmetric(horizontal: 10.w), child: Text("Or continue with", style: TextStyle(color: Colors.grey, fontSize: 12.sp))),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 10.w), child: Text(TextConst.orContinueWith, style: TextStyle(color: Colors.grey, fontSize: 12.sp))),
                             Expanded(child: Divider(color: Colors.grey.shade300)),
                           ],
                         ),
@@ -185,9 +187,9 @@ class SignupView extends GetView<SignupController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset('images/google_logo.png', height: 22.r),
+                                Image.asset(ImageConst.googleLogo, height: 22.r),
                                 SizedBox(width: 10.w),
-                                Text("Continue with Google", style: TextStyle(color: Colors.black87, fontSize: 15.sp, fontWeight: FontWeight.w500)),
+                                Text(TextConst.continueWithGoogle, style: TextStyle(color: Colors.black87, fontSize: 15.sp, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -196,10 +198,10 @@ class SignupView extends GetView<SignupController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Already have an account? ", style: TextStyle(color: Colors.black87, fontSize: 14.sp)),
+                            Text(TextConst.alreadyHaveAccount, style: TextStyle(color: Colors.black87, fontSize: 14.sp)),
                             GestureDetector(
                               onTap: () => Get.toNamed(AppRoute.login),
-                              child: Text("Login", style: TextStyle(color: Colors.orangeAccent, fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                              child: Text(TextConst.login, style: TextStyle(color: Colors.orangeAccent, fontSize: 14.sp, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),

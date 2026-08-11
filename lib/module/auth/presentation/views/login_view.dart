@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/module/auth/presentation/controllers/login_controller.dart';
 
@@ -21,7 +23,7 @@ class LoginView extends GetView<LoginController> {
             right: 0,
             height: 1.sh,
             child: Image.asset(
-              "assets/images/auth/auth_bg.png",
+              ImageConst.authBg,
               fit: BoxFit.cover,
               alignment: Alignment.topCenter,
             ),
@@ -56,7 +58,7 @@ class LoginView extends GetView<LoginController> {
                         SizedBox(height: 25.h),
                         RichText(
                           text: TextSpan(
-                            text: 'Welcome ',
+                            text: TextConst.welcome,
                             style: TextStyle(
                               color: const Color(0xFF333333),
                               fontSize: 28.sp,
@@ -64,13 +66,13 @@ class LoginView extends GetView<LoginController> {
                               fontFamily: 'Poppins',
                             ),
                             children: const <TextSpan>[
-                              TextSpan(text: 'Back!', style: TextStyle(color: Colors.orangeAccent)),
+                              TextSpan(text: TextConst.back, style: TextStyle(color: Colors.orangeAccent)),
                             ],
                           ),
                         ),
                         SizedBox(height: 8.h),
                         Text(
-                          "Login to continue to your account",
+                          TextConst.loginSubtitle,
                           style: TextStyle(color: Colors.black54, fontSize: 14.sp, fontFamily: 'Poppins'),
                         ),
                         SizedBox(height: 30.h),
@@ -79,14 +81,14 @@ class LoginView extends GetView<LoginController> {
                           controller: controller.useremailController,
                           focusNode: controller.emailFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please Enter Email';
+                            if (value == null || value.isEmpty) return TextConst.enterEmail;
                             return null;
                           },
                           onFieldSubmitted: (value) {
                             FocusScope.of(context).requestFocus(controller.passwordFocusNode);
                           },
                           decoration: InputDecoration(
-                            hintText: "Email Address",
+                            hintText: TextConst.emailHint,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
                             prefixIcon: Icon(Icons.email_outlined, color: Colors.orangeAccent, size: 22.r),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(15.r), borderSide: const BorderSide(color: Color(0xFFEEEEEE))),
@@ -100,12 +102,12 @@ class LoginView extends GetView<LoginController> {
                           controller: controller.userpasswordController,
                           focusNode: controller.passwordFocusNode,
                           validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please Enter Password';
+                            if (value == null || value.isEmpty) return TextConst.enterPassword;
                             return null;
                           },
                           obscureText: controller.obscureText.value,
                           decoration: InputDecoration(
-                            hintText: "Password",
+                            hintText: TextConst.passwordHint,
                             hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp),
                             prefixIcon: Icon(Icons.lock_outline, color: Colors.orangeAccent, size: 22.r),
                             suffixIcon: GestureDetector(
@@ -125,10 +127,10 @@ class LoginView extends GetView<LoginController> {
                             onTap: () => Get.toNamed(AppRoute.forgotPassword),
                             child: RichText(
                               text: TextSpan(
-                                text: 'Forgot ',
+                                text: TextConst.forgot,
                                 style: TextStyle(color: Colors.black54, fontSize: 13.sp),
                                 children: [
-                                  TextSpan(text: 'Password?', style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 13.sp)),
+                                  TextSpan(text: TextConst.passwordQuestion, style: TextStyle(color: Colors.orangeAccent, fontWeight: FontWeight.bold, fontSize: 13.sp)),
                                 ],
                               ),
                             ),
@@ -153,7 +155,7 @@ class LoginView extends GetView<LoginController> {
                             child: Center(
                               child: controller.loading.value 
                                 ? SizedBox(height: 20.r, width: 20.r, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                                : Text("Login", style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
+                                : Text(TextConst.login, style: TextStyle(color: Colors.white, fontSize: 18.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins')),
                             ),
                           ),
                         )),
@@ -162,7 +164,7 @@ class LoginView extends GetView<LoginController> {
                         Row(
                           children: [
                             Expanded(child: Divider(color: Colors.grey.shade300)),
-                            Padding(padding: EdgeInsets.symmetric(horizontal: 10.w), child: Text("Or continue with", style: TextStyle(color: Colors.grey, fontSize: 12.sp))),
+                            Padding(padding: EdgeInsets.symmetric(horizontal: 10.w), child: Text(TextConst.orContinueWith, style: TextStyle(color: Colors.grey, fontSize: 12.sp))),
                             Expanded(child: Divider(color: Colors.grey.shade300)),
                           ],
                         ),
@@ -182,9 +184,9 @@ class LoginView extends GetView<LoginController> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Image.asset('images/google_logo.png', height: 22.r),
+                                Image.asset(ImageConst.googleLogo, height: 22.r),
                                 SizedBox(width: 10.w),
-                                Text("Continue with Google", style: TextStyle(color: Colors.black87, fontSize: 15.sp, fontWeight: FontWeight.w500)),
+                                Text(TextConst.continueWithGoogle, style: TextStyle(color: Colors.black87, fontSize: 15.sp, fontWeight: FontWeight.w500)),
                               ],
                             ),
                           ),
@@ -194,10 +196,10 @@ class LoginView extends GetView<LoginController> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text("Don't have an account? ", style: TextStyle(color: Colors.black87, fontSize: 14.sp)),
+                            Text(TextConst.dontHaveAccount, style: TextStyle(color: Colors.black87, fontSize: 14.sp)),
                             GestureDetector(
                               onTap: () => Get.toNamed(AppRoute.signup),
-                              child: Text("Sign up", style: TextStyle(color: Colors.orangeAccent, fontSize: 14.sp, fontWeight: FontWeight.bold)),
+                              child: Text(TextConst.signUp, style: TextStyle(color: Colors.orangeAccent, fontSize: 14.sp, fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),

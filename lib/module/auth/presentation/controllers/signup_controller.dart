@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/core/services/database_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
@@ -70,7 +71,7 @@ class SignupController extends GetxController {
       Get.offAllNamed(AppRoute.notifications);
     } catch (e) {
       loading.value = false;
-      Get.snackbar("Error", e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
@@ -80,7 +81,7 @@ class SignupController extends GetxController {
     String name = nameController.text.trim();
 
     if (email.isEmpty || password.isEmpty || name.isEmpty) {
-      Get.snackbar("Error", "Please fill all fields", backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, TextConst.fillAllFields, backgroundColor: Colors.red, colorText: Colors.white);
       return;
     }
 
@@ -112,7 +113,7 @@ class SignupController extends GetxController {
       Get.offAllNamed(AppRoute.notifications);
     } catch (e) {
       loading.value = false;
-      Get.snackbar("Error", e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
     }
   }
 
