@@ -1,14 +1,23 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:quick_eats_app/core/services/database_service.dart';
-import 'package:random_string/random_string.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
+import '../../domain/usecases/admin_usecases.dart';
 
 class AdminController extends GetxController {
+  final AdminLoginUseCase adminLoginUseCase;
+  final AddFoodItemUseCase addFoodItemUseCase;
+  final UploadFoodImageUseCase uploadFoodImageUseCase;
+
+  AdminController(
+    this.adminLoginUseCase,
+    this.addFoodItemUseCase,
+    this.uploadFoodImageUseCase,
+  );
+
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   
@@ -24,24 +33,19 @@ class AdminController extends GetxController {
   Future<void> loginAdmin() async {
     try {
       isLoading.value = true;
-      var snapshot = await FirebaseFirestore.instance.collection("Admin").get();
-      bool success = false;
-      for (var result in snapshot.docs) {
-        if (result.data()['id'] == usernameController.text.trim() &&
-            result.data()['password'] == passwordController.text.trim()) {
-          success = true;
-          break;
-        }
-      }
+      bool success = await adminLoginUseCase.execute(
+        usernameController.text.trim(),
+        passwordController.text.trim(),
+      );
       isLoading.value = false;
       if (success) {
         Get.toNamed(AppRoute.adminHome);
       } else {
-        Get.snackbar("Error", "Invalid credentials", backgroundColor: Colors.red, colorText: Colors.white);
+        Get.snackbar(TextConst.error, TextConst.invalidCredentials, backgroundColor: ColorConst.red, colorText: ColorConst.white);
       }
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar("Error", e.toString());
+      Get.snackbar(TextConst.error, e.toString());
     }
   }
 
@@ -52,7 +56,7 @@ class AdminController extends GetxController {
         selectedImage.value = File(image.path);
       }
     } catch (e) {
-      Get.snackbar("Error", "Image selection failed");
+      Get.snackbar(TextConst.error, TextConst.imageSelectionFailed);
     }
   }
 
@@ -60,10 +64,7 @@ class AdminController extends GetxController {
     if (selectedImage.value != null && foodNameController.text.isNotEmpty && foodPriceController.text.isNotEmpty && foodDetailController.text.isNotEmpty) {
       try {
         isLoading.value = true;
-        String addId = randomAlphaNumeric(10);
-        Reference firebaseStorageRef = FirebaseStorage.instance.ref().child("blogImages").child(addId);
-        final UploadTask task = firebaseStorageRef.putFile(selectedImage.value!);
-        var downloadUrl = await (await task).ref.getDownloadURL();
+        String downloadUrl = await uploadFoodImageUseCase.execute(selectedImage.value!);
 
         Map<String, dynamic> addItem = {
           "Image": downloadUrl,
@@ -72,9 +73,9 @@ class AdminController extends GetxController {
           "Detail": foodDetailController.text
         };
 
-        await DatabaseMethods().addFoodItem(addItem, selectedCategory.value);
+        await addFoodItemUseCase.execute(addItem, selectedCategory.value);
         isLoading.value = false;
-        Get.snackbar("Success", "Food item added successfully!", backgroundColor: Colors.green, colorText: Colors.white);
+        Get.snackbar(TextConst.success, TextConst.foodItemAddedSuccess, backgroundColor: ColorConst.green, colorText: ColorConst.white);
         
         // Reset fields
         foodNameController.clear();
@@ -83,10 +84,10 @@ class AdminController extends GetxController {
         selectedImage.value = null;
       } catch (e) {
         isLoading.value = false;
-        Get.snackbar("Error", "Failed to add food item");
+        Get.snackbar(TextConst.error, TextConst.foodItemAddFailed);
       }
     } else {
-      Get.snackbar("Error", "Please fill all fields and select an image");
+      Get.snackbar(TextConst.error, TextConst.fillAllFields);
     }
   }
 

@@ -1,8 +1,12 @@
 import 'package:get/get.dart';
-import 'package:quick_eats_app/core/services/database_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import '../../domain/usecases/get_food_items_usecase.dart';
 
 class HomeController extends GetxController {
+  final GetFoodItemsUseCase getFoodItemsUseCase;
+
+  HomeController(this.getFoodItemsUseCase);
+
   var selectedCategory = 'Pizza'.obs;
   var userName = 'User'.obs;
   
@@ -24,7 +28,7 @@ class HomeController extends GetxController {
 
   Future<void> loadFoodItems(String category) async {
     selectedCategory.value = category;
-    foodItemStream.value = await DatabaseMethods().getFoodItem(category);
+    foodItemStream.value = await getFoodItemsUseCase.execute(category);
   }
 
   bool isSelected(String category) {

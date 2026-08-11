@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/module/wallet/presentation/controllers/wallet_controller.dart';
 import 'package:quick_eats_app/core/widget/widget_support.dart';
 
@@ -23,7 +26,7 @@ class WalletView extends GetView<WalletController> {
                 padding: EdgeInsets.only(bottom: 10.h),
                 child: Center(
                   child: Text(
-                    "Wallet",
+                    TextConst.wallet,
                     style: AppWidget.HeadlineTextFieldStyle(),
                   ),
                 ),
@@ -33,15 +36,15 @@ class WalletView extends GetView<WalletController> {
             Container(
               padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
               width: 1.sw,
-              decoration: const BoxDecoration(color: Color(0xFFF2F2F2)),
+              decoration: const BoxDecoration(color: ColorConst.walletBg),
               child: Row(
                 children: [
-                  Image.asset("images/wallet.png", height: 60.r, width: 60.r, fit: BoxFit.cover),
+                  Image.asset(ImageConst.wallet, height: 60.r, width: 60.r, fit: BoxFit.cover),
                   SizedBox(width: 40.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Your Wallet", style: AppWidget.LightTextFieldStyle()),
+                      Text(TextConst.yourWallet, style: AppWidget.LightTextFieldStyle()),
                       SizedBox(height: 5.h),
                       Obx(() => Text(
                         "₹${double.parse(controller.walletBalance.value).toStringAsFixed(2)}",
@@ -56,7 +59,7 @@ class WalletView extends GetView<WalletController> {
             Padding(
               padding: EdgeInsets.only(left: 20.w),
               child: Text(
-                "Add money ",
+                TextConst.addMoneyLabel,
                 style: TextStyle(fontSize: 18.sp, fontFamily: 'Poppins', fontWeight: FontWeight.bold),
               ),
             ),
@@ -77,11 +80,11 @@ class WalletView extends GetView<WalletController> {
                 margin: EdgeInsets.symmetric(horizontal: 50.w),
                 padding: EdgeInsets.symmetric(vertical: 12.h),
                 width: 1.sw,
-                decoration: BoxDecoration(color: const Color(0xFF008080), borderRadius: BorderRadius.circular(8.r)),
+                decoration: BoxDecoration(color: ColorConst.tealWallet, borderRadius: BorderRadius.circular(8.r)),
                 child: Center(
                   child: Text(
-                    "Add Money",
-                    style: TextStyle(color: Colors.white, fontSize: 16.sp, fontFamily: 'Poppins', fontWeight: FontWeight.bold),
+                    TextConst.addMoney,
+                    style: TextStyle(color: ColorConst.white, fontSize: 16.sp, fontFamily: 'Poppins', fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -97,7 +100,7 @@ class WalletView extends GetView<WalletController> {
       onTap: () => _showPaymentBottomSheet(amount),
       child: Container(
         padding: EdgeInsets.all(5.r),
-        decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE9E2E2)), borderRadius: BorderRadius.circular(5.r)),
+        decoration: BoxDecoration(border: Border.all(color: ColorConst.amountBorder), borderRadius: BorderRadius.circular(5.r)),
         child: Text("₹$amount", style: AppWidget.semiBoldFieldStyle()),
       ),
     );
@@ -109,42 +112,42 @@ class WalletView extends GetView<WalletController> {
       Container(
         padding: EdgeInsets.all(20.r),
         height: 0.6.sh,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
+        decoration: BoxDecoration(color: ColorConst.white, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Add Money to Wallet", style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
+                Text(TextConst.addMoneyToWallet, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
                 IconButton(icon: Icon(Icons.close, size: 24.r), onPressed: () => Get.back()),
               ],
             ),
             SizedBox(height: 20.h),
-            Text("Amount: ₹$amount", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500)),
+            Text("${TextConst.amountPrefix}$amount", style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.w500)),
             SizedBox(height: 30.h),
             Obx(() => controller.isProcessingPayment.value ? const SizedBox() : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Test Payment Method", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                Text(TextConst.testPaymentMethod, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
                 SizedBox(height: 15.h),
-                _buildPaymentMethod(icon: Icons.credit_card, title: "Card ending in 4242", subtitle: "Visa (Test Card)"),
+                _buildPaymentMethod(icon: Icons.credit_card, title: TextConst.testCard, subtitle: TextConst.visaTest),
               ],
             )),
             const Spacer(),
             Obx(() => controller.isProcessingPayment.value 
-              ? Center(child: Column(children: [const CircularProgressIndicator(), SizedBox(height: 20.h), const Text("Processing payment...")]))
+              ? Center(child: Column(children: [const CircularProgressIndicator(), SizedBox(height: 20.h), const Text(TextConst.processingPayment)]))
               : SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF008080), padding: EdgeInsets.symmetric(vertical: 15.h), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r))),
+                  style: ElevatedButton.styleFrom(backgroundColor: ColorConst.tealWallet, padding: EdgeInsets.symmetric(vertical: 15.h), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r))),
                   onPressed: () async {
                     controller.isProcessingPayment.value = true;
                     await Future.delayed(const Duration(seconds: 2));
                     Get.back();
                     await controller.addMoneyToWallet(amount);
                   },
-                  child: Text("Pay ₹$amount", style: TextStyle(color: Colors.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                  child: Text("${TextConst.payPrefix}$amount", style: TextStyle(color: ColorConst.white, fontSize: 16.sp, fontWeight: FontWeight.bold)),
                 ),
               )),
           ],
@@ -157,14 +160,14 @@ class WalletView extends GetView<WalletController> {
   Widget _buildPaymentMethod({required IconData icon, required String title, required String subtitle}) {
     return Container(
       padding: EdgeInsets.all(15.r),
-      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(10.r)),
+      decoration: BoxDecoration(border: Border.all(color: ColorConst.greyShade300), borderRadius: BorderRadius.circular(10.r)),
       child: Row(
         children: [
           Icon(icon, size: 30.r),
           SizedBox(width: 15.w),
           Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
-            Text(subtitle, style: TextStyle(fontSize: 14.sp, color: Colors.grey)),
+            Text(subtitle, style: TextStyle(fontSize: 14.sp, color: ColorConst.grey)),
           ]),
         ],
       ),
@@ -182,19 +185,19 @@ class WalletView extends GetView<WalletController> {
               Row(children: [
                 GestureDetector(onTap: () => Get.back(), child: Icon(Icons.cancel, size: 24.r)),
                 SizedBox(width: 40.w),
-                const Center(child: Text("Add Money", style: TextStyle(color: Color(0xFF008080), fontWeight: FontWeight.bold))),
+                Center(child: Text(TextConst.addMoney, style: TextStyle(color: ColorConst.tealWallet, fontWeight: FontWeight.bold))),
               ]),
               SizedBox(height: 20.h),
-              Text("Amount", style: TextStyle(fontSize: 14.sp)),
+              Text(TextConst.amount, style: TextStyle(fontSize: 14.sp)),
               SizedBox(height: 10.h),
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 10.w),
-                decoration: BoxDecoration(border: Border.all(color: Colors.black38, width: 1.w), borderRadius: BorderRadius.circular(10.r)),
+                decoration: BoxDecoration(border: Border.all(color: ColorConst.black38, width: 1.w), borderRadius: BorderRadius.circular(10.r)),
                 child: TextField(
                   controller: controller.amountController, 
                   keyboardType: TextInputType.number, 
                   style: TextStyle(fontSize: 16.sp),
-                  decoration: const InputDecoration(border: InputBorder.none, hintText: 'Enter Amount'),
+                  decoration: const InputDecoration(border: InputBorder.none, hintText: TextConst.enterAmount),
                 ),
               ),
               SizedBox(height: 20.h),
@@ -206,13 +209,13 @@ class WalletView extends GetView<WalletController> {
                       Get.back();
                       _showPaymentBottomSheet(amount);
                     } else {
-                      Get.snackbar("Error", "Please enter an amount");
+                      Get.snackbar(TextConst.error, TextConst.enterAmountError);
                     }
                   },
                   child: Container(
                     width: 100.w, padding: EdgeInsets.all(5.r),
-                    decoration: BoxDecoration(color: const Color(0xFF008080), borderRadius: BorderRadius.circular(10.r)),
-                    child: Center(child: Text("Pay", style: TextStyle(color: Colors.white, fontSize: 16.sp))),
+                    decoration: BoxDecoration(color: ColorConst.tealWallet, borderRadius: BorderRadius.circular(10.r)),
+                    child: Center(child: Text(TextConst.pay, style: TextStyle(color: ColorConst.white, fontSize: 16.sp))),
                   ),
                 ),
               )

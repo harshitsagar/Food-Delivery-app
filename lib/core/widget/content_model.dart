@@ -1,3 +1,6 @@
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
+
 class UnboardingContent {
   String image;
   String title1;
@@ -14,21 +17,21 @@ class UnboardingContent {
 
 List<UnboardingContent> contents = [
   UnboardingContent(
-    description: 'Pick your food from our menu\n          More than 35 items',
-    image: "assets/images/onboarding/onboarding_img1.png",
-    title1: 'Select from Our',
-    title2: ' Best Menu',
+    description: TextConst.onboarding1Desc,
+    image: ImageConst.onboarding1,
+    title1: TextConst.onboarding1Title1,
+    title2: TextConst.onboarding1Title2,
   ),
   UnboardingContent(
-    description: 'You can pay cash on delivery and\n       Card payment is available',
-    image: "assets/images/onboarding/onboarding_img2.png",
-    title1: 'Easy and Online',
-    title2: ' Payment',
+    description: TextConst.onboarding2Desc,
+    image: ImageConst.onboarding2,
+    title1: TextConst.onboarding2Title1,
+    title2: TextConst.onboarding2Title2,
   ),
   UnboardingContent(
-    description: 'Deliver your food at your\n              Doorstep',
-    image: "assets/images/onboarding/onboarding_img3.png",
-    title1: 'Quick Delivery at',
-    title2: ' Your Doorstep',
+    description: TextConst.onboarding3Desc,
+    image: ImageConst.onboarding3,
+    title1: TextConst.onboarding3Title1,
+    title2: TextConst.onboarding3Title2,
   ),
 ];

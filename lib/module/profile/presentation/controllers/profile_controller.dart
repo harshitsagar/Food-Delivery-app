@@ -1,13 +1,21 @@
 import 'dart:io';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:quick_eats_app/core/services/auth_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
-import 'package:random_string/random_string.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
+import '../../domain/usecases/profile_usecases.dart';
 
 class ProfileController extends GetxController {
+  final UploadProfileImageUseCase uploadProfileImageUseCase;
+  final LogoutUseCase logoutUseCase;
+  final DeleteAccountUseCase deleteAccountUseCase;
+
+  ProfileController(
+    this.uploadProfileImageUseCase,
+    this.logoutUseCase,
+    this.deleteAccountUseCase,
+  );
+
   var profilePic = ''.obs;
   var name = ''.obs;
   var email = ''.obs;
@@ -45,11 +53,7 @@ class ProfileController extends GetxController {
   Future<void> uploadImage() async {
     if (selectedImage.value != null) {
       try {
-        String addId = randomAlphaNumeric(10);
-        Reference firebaseStorageRef = FirebaseStorage.instance.ref().child("blogImages").child(addId);
-        final UploadTask task = firebaseStorageRef.putFile(selectedImage.value!);
-        var downloadUrl = await (await task).ref.getDownloadURL();
-        
+        String downloadUrl = await uploadProfileImageUseCase.execute(selectedImage.value!);
         await SharedPreferenceHelper.saveUserProfile(downloadUrl);
         profilePic.value = downloadUrl;
         Get.snackbar("Success", "Image uploaded successfully!");
@@ -60,12 +64,12 @@ class ProfileController extends GetxController {
   }
 
   Future<void> logout() async {
-    await AuthMethods().signOut();
+    await logoutUseCase.execute();
     Get.offAllNamed(AppRoute.login);
   }
 
   Future<void> deleteAccount() async {
-    await AuthMethods().deleteUser();
+    await deleteAccountUseCase.execute();
     Get.offAllNamed(AppRoute.login);
   }
 }

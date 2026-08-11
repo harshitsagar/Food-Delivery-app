@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/module/food_details/presentation/controllers/details_controller.dart';
 import 'package:quick_eats_app/core/widget/widget_support.dart';
 
@@ -22,7 +24,7 @@ class DetailsView extends GetView<DetailsController> {
               onTap: () => Get.back(),
               child: Icon(
                 Icons.arrow_back_ios_new_outlined,
-                color: Colors.black,
+                color: ColorConst.black,
                 size: 24.r,
               ),
             ),
@@ -54,10 +56,10 @@ class DetailsView extends GetView<DetailsController> {
                   child: Container(
                     padding: EdgeInsets.all(2.r),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: ColorConst.black,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: Icon(Icons.remove, color: Colors.white, size: 20.r),
+                    child: Icon(Icons.remove, color: ColorConst.white, size: 20.r),
                   ),
                 ),
                 SizedBox(width: 20.w),
@@ -68,10 +70,10 @@ class DetailsView extends GetView<DetailsController> {
                   child: Container(
                     padding: EdgeInsets.all(2.r),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: ColorConst.black,
                       borderRadius: BorderRadius.circular(8.r),
                     ),
-                    child: Icon(Icons.add, color: Colors.white, size: 20.r),
+                    child: Icon(Icons.add, color: ColorConst.white, size: 20.r),
                   ),
                 ),
               ],
@@ -86,9 +88,9 @@ class DetailsView extends GetView<DetailsController> {
             Row(
               children: [
                 Text(
-                  "Delivery Time",
+                  TextConst.deliveryTime,
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: ColorConst.black87,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w400,
                     fontFamily: 'Poppins',
@@ -97,14 +99,14 @@ class DetailsView extends GetView<DetailsController> {
                 SizedBox(width: 25.w),
                 Icon(
                   Icons.alarm, 
-                  color: Colors.black54,
+                  color: ColorConst.black54,
                   size: 24.r,
                 ),
                 SizedBox(width: 5.w),
                 Text(
-                  "30 min",
+                  TextConst.min30,
                   style: TextStyle(
-                    color: Colors.black87,
+                    color: ColorConst.black87,
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w400,
                     fontFamily: 'Poppins',
@@ -122,7 +124,7 @@ class DetailsView extends GetView<DetailsController> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Total Price",
+                        TextConst.totalPrice,
                         style: AppWidget.semiBoldFieldStyle(),
                       ),
                       Obx(() => Text(
@@ -137,16 +139,16 @@ class DetailsView extends GetView<DetailsController> {
                       width: 1.sw / 2,
                       padding: EdgeInsets.all(8.r),
                       decoration: BoxDecoration(
-                        color: Colors.black,
+                        color: ColorConst.black,
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Text(
-                            "Add to cart",
+                            TextConst.addToCart,
                             style: TextStyle(
-                              color: Colors.white,
+                              color: ColorConst.white,
                               fontSize: 16.sp,
                               fontFamily: 'Poppins',
                             ),
@@ -155,12 +157,12 @@ class DetailsView extends GetView<DetailsController> {
                           Container(
                             padding: EdgeInsets.all(3.r),
                             decoration: BoxDecoration(
-                                color: Colors.grey,
+                                color: ColorConst.grey,
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Icon(
                               Icons.shopping_cart_outlined,
-                              color: Colors.white,
+                              color: ColorConst.white,
                               size: 20.r,
                             ),
                           ),

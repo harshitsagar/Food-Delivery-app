@@ -1,14 +1,28 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
-import 'package:quick_eats_app/core/services/database_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import '../../domain/entities/user_entity.dart';
+import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/google_login_usecase.dart';
+import '../../domain/usecases/save_user_usecase.dart';
+import '../../domain/usecases/get_user_usecase.dart';
 
 class LoginController extends GetxController {
+  final LoginUseCase loginUseCase;
+  final GoogleLoginUseCase googleLoginUseCase;
+  final SaveUserUseCase saveUserUseCase;
+  final GetUserUseCase getUserUseCase;
+
+  LoginController(
+    this.loginUseCase,
+    this.googleLoginUseCase,
+    this.saveUserUseCase,
+    this.getUserUseCase,
+  );
+
   final useremailController = TextEditingController();
   final userpasswordController = TextEditingController();
   
@@ -23,28 +37,16 @@ class LoginController extends GetxController {
   }
 
   Future<void> loginWithGoogle(BuildContext context) async {
-    final auth = FirebaseAuth.instance;
-    final googleSignIn = GoogleSignIn();
-
     try {
       loading.value = true;
-      final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      final userCredential = await googleLoginUseCase.execute();
 
-      if (googleSignInAccount == null) {
+      if (userCredential == null) {
         loading.value = false;
         return;
       }
 
-      final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount.authentication;
-
-      final AuthCredential authCredential = GoogleAuthProvider.credential(
-          accessToken: googleSignInAuthentication.accessToken,
-          idToken: googleSignInAuthentication.idToken);
-
-      final UserCredential userCredential = await auth.signInWithCredential(authCredential);
-      final User? user = userCredential.user;
-
+      final user = userCredential.user;
       if (user == null) {
         loading.value = false;
         return;
@@ -52,27 +54,27 @@ class LoginController extends GetxController {
 
       String? wallet = await SharedPreferenceHelper.getUserWallet();
 
-      Map<String, dynamic> addUserInfo = {
-        "Name": user.displayName ?? "Google User",
-        "Email": user.email ?? "no-email@example.com",
-        "Wallet": wallet ?? "0",
-        "Id": user.uid,
-        "login": "Google",
-      };
+      final userEntity = UserEntity(
+        id: user.uid,
+        name: user.displayName ?? TextConst.googleUser,
+        email: user.email ?? TextConst.defaultEmail,
+        wallet: wallet ?? "0",
+        loginType: "Google",
+      );
 
-      await DatabaseMethods().addUserDetail(addUserInfo, user.uid);
+      await saveUserUseCase.execute(userEntity);
 
-      await SharedPreferenceHelper.saveUserName(user.displayName ?? "Google User");
-      await SharedPreferenceHelper.saveUserEmail(user.email ?? "no-email@example.com");
-      await SharedPreferenceHelper.saveUserWallet(wallet ?? '0');
-      await SharedPreferenceHelper.saveUserId(user.uid);
-      await SharedPreferenceHelper.saveUserLOGIN("Google");
+      await SharedPreferenceHelper.saveUserName(userEntity.name);
+      await SharedPreferenceHelper.saveUserEmail(userEntity.email);
+      await SharedPreferenceHelper.saveUserWallet(userEntity.wallet);
+      await SharedPreferenceHelper.saveUserId(userEntity.id);
+      await SharedPreferenceHelper.saveUserLOGIN(userEntity.loginType);
 
       loading.value = false;
       Get.offAllNamed(AppRoute.notifications);
     } catch (e) {
       loading.value = false;
-      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: ColorConst.red, colorText: ColorConst.white);
     }
   }
 
@@ -81,48 +83,47 @@ class LoginController extends GetxController {
     String password = userpasswordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      Get.snackbar(TextConst.error, TextConst.enterEmailPassword, backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, TextConst.enterEmailPassword, backgroundColor: ColorConst.red, colorText: ColorConst.white);
       return;
     }
 
     try {
       loading.value = true;
-      UserCredential userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(email: email, password: password);
-
-      User? user = userCredential.user;
+      final userCredential = await loginUseCase.execute(email, password);
+      final user = userCredential.user;
 
       if (user != null) {
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+        final existingUser = await getUserUseCase.execute(user.uid);
 
-        if (!userDoc.exists) {
-          Map<String, dynamic> addUserInfo = {
-            "Name": email.split('@')[0],
-            "Email": email,
-            "Wallet": "0",
-            "Id": user.uid,
-            "login": "Email",
-          };
-          await DatabaseMethods().addUserDetail(addUserInfo, user.uid);
+        if (existingUser == null) {
+          final newUser = UserEntity(
+            id: user.uid,
+            name: email.split('@')[0],
+            email: email,
+            wallet: "0",
+            loginType: "Email",
+          );
+          await saveUserUseCase.execute(newUser);
+          
+          await SharedPreferenceHelper.saveUserName(newUser.name);
+          await SharedPreferenceHelper.saveUserEmail(newUser.email);
+          await SharedPreferenceHelper.saveUserWallet(newUser.wallet);
+          await SharedPreferenceHelper.saveUserLOGIN(newUser.loginType);
+        } else {
+          await SharedPreferenceHelper.saveUserName(existingUser.name);
+          await SharedPreferenceHelper.saveUserEmail(existingUser.email);
+          await SharedPreferenceHelper.saveUserWallet(existingUser.wallet);
+          await SharedPreferenceHelper.saveUserLOGIN(existingUser.loginType);
         }
 
         await SharedPreferenceHelper.saveUserId(user.uid);
-        await SharedPreferenceHelper.saveUserEmail(email);
-        await SharedPreferenceHelper.saveUserWallet('0');
-        await SharedPreferenceHelper.saveUserLOGIN("Email");
-
-        String name = userDoc.exists ? userDoc.get('Name') : email.split('@')[0];
-        await SharedPreferenceHelper.saveUserName(name);
 
         loading.value = false;
         Get.offAllNamed(AppRoute.notifications);
       }
     } catch (e) {
       loading.value = false;
-      Get.snackbar(TextConst.error, e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: ColorConst.red, colorText: ColorConst.white);
     }
   }
 

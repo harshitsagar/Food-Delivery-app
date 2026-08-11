@@ -1,11 +1,25 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
-import 'package:quick_eats_app/core/services/database_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import '../../domain/usecases/cart_usecases.dart';
 
 class CartController extends GetxController {
+  final GetCartItemsUseCase getCartItemsUseCase;
+  final PlaceOrderUseCase placeOrderUseCase;
+  final ClearCartUseCase clearCartUseCase;
+  final UpdateWalletUseCase updateWalletUseCase;
+
+  CartController(
+    this.getCartItemsUseCase,
+    this.placeOrderUseCase,
+    this.clearCartUseCase,
+    this.updateWalletUseCase,
+  );
+
   var userId = ''.obs;
   var walletBalance = '0'.obs;
   var totalAmount = 0.0.obs;
@@ -26,12 +40,12 @@ class CartController extends GetxController {
       walletBalance.value = await SharedPreferenceHelper.getUserWallet() ?? '0';
       
       if (userId.value.isNotEmpty) {
-        foodStream.value = await DatabaseMethods().getFoodCart(userId.value);
+        foodStream.value = await getCartItemsUseCase.execute(userId.value);
       }
       isLoading.value = false;
     } catch (e) {
       isLoading.value = false;
-      Get.snackbar("Error", "Failed to load cart");
+      Get.snackbar(TextConst.error, TextConst.failedToLoadCart);
     }
   }
 
@@ -48,7 +62,7 @@ class CartController extends GetxController {
     if (isCheckingOut.value || userId.value.isEmpty) return;
 
     if (double.parse(walletBalance.value) < totalAmount.value) {
-      Get.snackbar("Error", "Insufficient wallet balance", backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, TextConst.insufficientBalance, backgroundColor: ColorConst.red, colorText: ColorConst.white);
       return;
     }
 
@@ -58,27 +72,30 @@ class CartController extends GetxController {
       String orderId = DateTime.now().millisecondsSinceEpoch.toString();
       List<Map<String, dynamic>> items = await _getCartItems();
 
-      await FirebaseFirestore.instance.collection('orders').doc(orderId).set({
+      final orderData = {
+        'orderId': orderId,
         'userId': userId.value,
         'items': items,
         'totalAmount': totalAmount.value,
         'status': 'Placed',
         'orderDate': DateTime.now(),
-        'deliveryAddress': 'User Address Here',
-      });
+        'deliveryAddress': TextConst.userAddressPlaceholder,
+      };
+
+      await placeOrderUseCase.execute(orderData);
 
       double newBalance = double.parse(walletBalance.value) - totalAmount.value;
-      await DatabaseMethods().UpdateUserWallet(userId.value, newBalance.toString());
+      await updateWalletUseCase.execute(userId.value, newBalance.toString());
       await SharedPreferenceHelper.saveUserWallet(newBalance.toString());
       walletBalance.value = newBalance.toString();
 
-      await DatabaseMethods().clearCart(userId.value);
+      await clearCartUseCase.execute(userId.value);
 
       isCheckingOut.value = false;
       Get.toNamed(AppRoute.orderTracking, arguments: {'orderId': orderId});
     } catch (e) {
       isCheckingOut.value = false;
-      Get.snackbar("Error", "Error placing order: ${e.toString()}", backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, "${TextConst.errorPlacingOrder}${e.toString()}", backgroundColor: ColorConst.red, colorText: ColorConst.white);
     }
   }
 

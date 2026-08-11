@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/module/cart/presentation/controllers/cart_controller.dart';
 import 'package:quick_eats_app/core/widget/widget_support.dart';
 
@@ -22,7 +24,7 @@ class CartView extends GetView<CartController> {
                 padding: EdgeInsets.only(bottom: 10.h),
                 child: Center(
                   child: Text(
-                    "Food Cart",
+                    TextConst.foodCart,
                     style: AppWidget.HeadlineTextFieldStyle(),
                   ),
                 ),
@@ -37,9 +39,9 @@ class CartView extends GetView<CartController> {
                 return StreamBuilder<QuerySnapshot>(
                   stream: controller.foodStream.value,
                   builder: (context, snapshot) {
-                    if (snapshot.hasError) return Center(child: Text('Error: ${snapshot.error}'));
+                    if (snapshot.hasError) return Center(child: Text('${TextConst.error}: ${snapshot.error}'));
                     if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return const Center(child: Text('Your cart is empty'));
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return Center(child: Text(TextConst.cartEmpty));
 
                     // Update total in controller
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -104,7 +106,7 @@ class CartView extends GetView<CartController> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Total Price", style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
+                  Text(TextConst.totalPrice, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
                   Obx(() => Text(
                     "₹${controller.totalAmount.value.toStringAsFixed(2)}",
                     style: AppWidget.semiBoldFieldStyle(),
@@ -118,12 +120,12 @@ class CartView extends GetView<CartController> {
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 10.h),
                 width: 1.sw,
-                decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(10.r)),
+                decoration: BoxDecoration(color: ColorConst.black, borderRadius: BorderRadius.circular(10.r)),
                 margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 20.h),
                 child: Center(
                   child: controller.isCheckingOut.value
-                      ? SizedBox(height: 25.r, width: 25.r, child: const CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : Text("Place Order", style: TextStyle(color: Colors.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
+                      ? SizedBox(height: 25.r, width: 25.r, child: const CircularProgressIndicator(color: ColorConst.white, strokeWidth: 2))
+                      : Text(TextConst.placeOrder, style: TextStyle(color: ColorConst.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
                 ),
               ),
             )),

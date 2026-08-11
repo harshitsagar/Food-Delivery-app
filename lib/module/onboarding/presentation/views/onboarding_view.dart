@@ -3,37 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quick_eats_app/core/constant/color_const.dart';
-import 'package:quick_eats_app/core/routes/app_routes.dart';
-import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/widget/content_model.dart';
+import '../controllers/onboarding_controller.dart';
 
-class OnboardingView extends StatefulWidget {
+class OnboardingView extends GetView<OnboardingController> {
   const OnboardingView({super.key});
-
-  @override
-  State<OnboardingView> createState() => _OnboardingViewState();
-}
-
-class _OnboardingViewState extends State<OnboardingView> {
-  int currentIndex = 0;
-  late PageController _controller;
-
-  @override
-  void initState() {
-    _controller = PageController(initialPage: 0);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> completeOnboarding() async {
-    await SharedPreferenceHelper.saveIsOnboarding(true);
-    Get.offAllNamed(AppRoute.login);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,13 +27,9 @@ class _OnboardingViewState extends State<OnboardingView> {
               children: [
                 Expanded(
                   child: PageView.builder(
-                    controller: _controller,
+                    controller: controller.pageController,
                     itemCount: contents.length,
-                    onPageChanged: (int index) {
-                      setState(() {
-                        currentIndex = index;
-                      });
-                    },
+                    onPageChanged: controller.onPageChanged,
                     itemBuilder: (_, i) {
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: 30.0.w),
@@ -78,7 +49,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                               style: GoogleFonts.inter(
                                 fontSize: 32.sp,
                                 fontWeight: FontWeight.w800,
-                                color: const Color(0xFF2C190F),
+                                color: ColorConst.onboardingTitle,
                                 height: 1.1,
                               ),
                             ),
@@ -109,7 +80,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                                   height: 4.h,
                                   width: 4.w,
                                   decoration: const BoxDecoration(
-                                    color: Color(0xFFDFD5BF),
+                                    color: ColorConst.onboardingDot,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
@@ -121,7 +92,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                               textAlign: TextAlign.center,
                               style: GoogleFonts.inter(
                                 fontSize: 16.sp,
-                                color: const Color(0xFF6B5E55),
+                                color: ColorConst.onboardingDesc,
                                 height: 1.5,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -138,19 +109,16 @@ class _OnboardingViewState extends State<OnboardingView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
                       contents.length,
-                      (index) => buildDot(index, context),
+                      (index) => Obx(() => buildDot(index, context)),
                     ),
                   ),
                 ),
-                GestureDetector(
+                Obx(() => GestureDetector(
                   onTap: () {
-                    if (currentIndex == contents.length - 1) {
-                      completeOnboarding();
+                    if (controller.currentIndex.value == contents.length - 1) {
+                      controller.completeOnboarding();
                     } else {
-                      _controller.nextPage(
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                      );
+                      controller.next();
                     }
                   },
                   child: Container(
@@ -179,9 +147,9 @@ class _OnboardingViewState extends State<OnboardingView> {
                       alignment: Alignment.center,
                       children: [
                         Text(
-                          currentIndex == contents.length - 1 ? "Get Started" : "Next",
+                          controller.currentIndex.value == contents.length - 1 ? TextConst.getStarted : TextConst.next,
                           style: GoogleFonts.inter(
-                            color: Colors.white,
+                            color: ColorConst.white,
                             fontSize: 20.sp,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 1.2,
@@ -191,14 +159,14 @@ class _OnboardingViewState extends State<OnboardingView> {
                           right: 25.w,
                           child: Icon(
                             Icons.arrow_forward,
-                            color: Colors.white,
+                            color: ColorConst.white,
                             size: 24.r,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
+                )),
               ],
             ),
             // Skip button
@@ -206,11 +174,11 @@ class _OnboardingViewState extends State<OnboardingView> {
               top: 50.h,
               right: 25.w,
               child: TextButton(
-                onPressed: () => completeOnboarding(),
+                onPressed: () => controller.completeOnboarding(),
                 child: Text(
-                  "Skip",
+                  TextConst.skip,
                   style: GoogleFonts.inter(
-                    color: const Color(0xFF6B5E55),
+                    color: ColorConst.onboardingDesc,
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
@@ -218,24 +186,20 @@ class _OnboardingViewState extends State<OnboardingView> {
               ),
             ),
             // Back button
-            if (currentIndex > 0)
-              Positioned(
-                top: 50.h,
-                left: 20.w,
-                child: IconButton(
-                  onPressed: () {
-                    _controller.previousPage(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                    );
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_ios_new,
-                    color: const Color(0xFF2C190F),
-                    size: 22.r,
-                  ),
-                ),
-              ),
+            Obx(() => controller.currentIndex.value > 0
+                ? Positioned(
+                    top: 50.h,
+                    left: 20.w,
+                    child: IconButton(
+                      onPressed: () => controller.previous(),
+                      icon: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: ColorConst.onboardingTitle,
+                        size: 22.r,
+                      ),
+                    ),
+                  )
+                : const SizedBox.shrink()),
           ],
         ),
       ),
@@ -249,9 +213,9 @@ class _OnboardingViewState extends State<OnboardingView> {
       margin: EdgeInsets.only(right: 12.w),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: currentIndex == index
+        color: controller.currentIndex.value == index
             ? ColorConst.orangeGradientStart
-            : const Color(0xFFF1E2CF),
+            : ColorConst.onboardingInactiveDot,
       ),
     );
   }

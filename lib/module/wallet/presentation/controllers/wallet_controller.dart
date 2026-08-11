@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:quick_eats_app/core/services/database_service.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import '../../domain/usecases/wallet_usecases.dart';
 
 class WalletController extends GetxController {
+  final AddMoneyToWalletUseCase addMoneyToWalletUseCase;
+
+  WalletController(this.addMoneyToWalletUseCase);
+
   var walletBalance = '0'.obs;
   var userId = '0'.obs;
   var isLoading = false.obs;
@@ -32,13 +38,13 @@ class WalletController extends GetxController {
       double amountToAdd = double.parse(cleanAmount);
       double newBalance = currentBalance + amountToAdd;
 
+      await addMoneyToWalletUseCase.execute(userId.value, newBalance.toString());
       await SharedPreferenceHelper.saveUserWallet(newBalance.toString());
-      await DatabaseMethods().UpdateUserWallet(userId.value, newBalance.toString());
       
       walletBalance.value = newBalance.toString();
-      Get.snackbar("Success", "Successfully added ₹$amountToAdd to wallet", backgroundColor: Colors.green, colorText: Colors.white);
+      Get.snackbar(TextConst.success, "Successfully added ₹$amountToAdd to wallet", backgroundColor: ColorConst.green, colorText: ColorConst.white);
     } catch (e) {
-      Get.snackbar("Error", e.toString(), backgroundColor: Colors.red, colorText: Colors.white);
+      Get.snackbar(TextConst.error, e.toString(), backgroundColor: ColorConst.red, colorText: ColorConst.white);
     } finally {
       isLoading.value = false;
     }

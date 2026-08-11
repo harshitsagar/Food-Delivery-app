@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/module/profile/presentation/controllers/profile_controller.dart';
 
@@ -22,7 +25,7 @@ class ProfileView extends GetView<ProfileController> {
                         height: 1.sh / 4.3,
                         width: 1.sw,
                         decoration: BoxDecoration(
-                            color: Colors.black,
+                            color: ColorConst.black,
                             borderRadius: BorderRadius.vertical(bottom: Radius.elliptical(1.sw, 105.h))),
                       ),
                       Center(
@@ -38,7 +41,7 @@ class ProfileView extends GetView<ProfileController> {
                                 child: controller.selectedImage.value != null
                                     ? Image.file(controller.selectedImage.value!, height: 150.r, width: 150.r, fit: BoxFit.cover)
                                     : controller.profilePic.value.isEmpty
-                                        ? Image.asset("images/boy.jpg", height: 120.r, width: 120.r, fit: BoxFit.cover)
+                                        ? Image.asset(ImageConst.profileBoy, height: 120.r, width: 120.r, fit: BoxFit.cover)
                                         : Image.network(controller.profilePic.value, height: 150.r, width: 150.r, fit: BoxFit.cover),
                               )),
                             ),
@@ -52,7 +55,7 @@ class ProfileView extends GetView<ProfileController> {
                           children: [
                             Text(
                               controller.name.value,
-                              style: TextStyle(color: Colors.white, fontSize: 25.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                              style: TextStyle(color: ColorConst.white, fontSize: 25.sp, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
                             ),
                           ],
                         ),
@@ -60,19 +63,19 @@ class ProfileView extends GetView<ProfileController> {
                     ],
                   ),
                   SizedBox(height: 20.h),
-                  _buildProfileItem(Icons.person, "Name", controller.name.value),
+                  _buildProfileItem(Icons.person, TextConst.nameLabel, controller.name.value),
                   SizedBox(height: 20.h),
-                  _buildProfileItem(Icons.email, "Email", controller.email.value),
+                  _buildProfileItem(Icons.email, TextConst.emailLabel, controller.email.value),
                   SizedBox(height: 20.h),
-                  _buildSimpleItem(Icons.description, "Terms and Condition"),
+                  _buildSimpleItem(Icons.description, TextConst.termsCondition),
                   SizedBox(height: 20.h),
-                  _buildActionItem(Icons.person, "Seller login", () {
+                  _buildActionItem(Icons.person, TextConst.sellerLogin, () {
                     Get.toNamed(AppRoute.adminLogin);
                   }),
                   SizedBox(height: 20.h),
-                  _buildActionItem(Icons.delete, "Delete Account", () => _showConfirmationDialog("Delete Account", "Do you want to delete the account?", () => controller.deleteAccount())),
+                  _buildActionItem(Icons.delete, TextConst.deleteAccount, () => _showConfirmationDialog(TextConst.deleteAccount, TextConst.deleteConfirm, () => controller.deleteAccount())),
                   SizedBox(height: 20.h),
-                  _buildActionItem(Icons.logout, "LogOut", () => _showConfirmationDialog("Logout", "Do you want to logout?", () => controller.logout())),
+                  _buildActionItem(Icons.logout, TextConst.logOut, () => _showConfirmationDialog(TextConst.logout, TextConst.logoutConfirm, () => controller.logout())),
                   SizedBox(height: 40.h),
                 ],
               ),
@@ -87,14 +90,14 @@ class ProfileView extends GetView<ProfileController> {
         elevation: 5, borderRadius: BorderRadius.circular(10.r),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r)),
+          decoration: BoxDecoration(color: ColorConst.white, borderRadius: BorderRadius.circular(10.r)),
           child: Row(
             children: [
-              Icon(icon, color: Colors.black, size: 24.r),
+              Icon(icon, color: ColorConst.black, size: 24.r),
               SizedBox(width: 20.w),
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: TextStyle(color: Colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600)),
-                Text(value, style: TextStyle(color: Colors.black, fontSize: 18.sp, fontWeight: FontWeight.w600)),
+                Text(title, style: TextStyle(color: ColorConst.black, fontSize: 18.sp, fontWeight: FontWeight.w600)),
+                Text(value, style: TextStyle(color: ColorConst.black, fontSize: 18.sp, fontWeight: FontWeight.w600)),
               ])
             ],
           ),
@@ -110,12 +113,12 @@ class ProfileView extends GetView<ProfileController> {
         elevation: 5, borderRadius: BorderRadius.circular(10.r),
         child: Container(
           padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r)),
+          decoration: BoxDecoration(color: ColorConst.white, borderRadius: BorderRadius.circular(10.r)),
           child: Row(
             children: [
-              Icon(icon, color: Colors.black, size: 24.r),
+              Icon(icon, color: ColorConst.black, size: 24.r),
               SizedBox(width: 20.w),
-              Text(title, style: TextStyle(color: Colors.black, fontSize: 20.sp, fontWeight: FontWeight.w600)),
+              Text(title, style: TextStyle(color: ColorConst.black, fontSize: 20.sp, fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -132,12 +135,12 @@ class ProfileView extends GetView<ProfileController> {
           elevation: 5, borderRadius: BorderRadius.circular(10.r),
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 15.h, horizontal: 10.w),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10.r)),
+            decoration: BoxDecoration(color: ColorConst.white, borderRadius: BorderRadius.circular(10.r)),
             child: Row(
               children: [
-                Icon(icon, color: Colors.black, size: 24.r),
+                Icon(icon, color: ColorConst.black, size: 24.r),
                 SizedBox(width: 20.w),
-                Text(title, style: TextStyle(color: Colors.black, fontSize: 20.sp, fontWeight: FontWeight.w600)),
+                Text(title, style: TextStyle(color: ColorConst.black, fontSize: 20.sp, fontWeight: FontWeight.w600)),
               ],
             ),
           ),
@@ -156,8 +159,8 @@ class ProfileView extends GetView<ProfileController> {
             children: [
               Container(
                 height: 100.h,
-                decoration: BoxDecoration(color: Colors.teal, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
-                child: Center(child: Icon(Icons.check_circle, color: Colors.white, size: 60.r)),
+                decoration: BoxDecoration(color: ColorConst.teal, borderRadius: BorderRadius.only(topLeft: Radius.circular(20.r), topRight: Radius.circular(20.r))),
+                child: Center(child: Icon(Icons.check_circle, color: ColorConst.white, size: 60.r)),
               ),
               SizedBox(height: 20.h),
               Text(title, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.bold)),
@@ -167,14 +170,14 @@ class ProfileView extends GetView<ProfileController> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  TextButton(child: Text('No', style: TextStyle(fontSize: 18.sp)), onPressed: () => Get.back()),
+                  TextButton(child: Text(TextConst.no, style: TextStyle(fontSize: 18.sp)), onPressed: () => Get.back()),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r))),
+                    style: ElevatedButton.styleFrom(backgroundColor: ColorConst.green, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r))),
                     onPressed: () {
                       Get.back();
                       onConfirm();
                     },
-                    child: Text('Yes', style: TextStyle(fontSize: 18.sp)),
+                    child: Text(TextConst.yes, style: TextStyle(fontSize: 18.sp)),
                   ),
                 ],
               ),

@@ -1,8 +1,13 @@
 import 'package:get/get.dart';
-import 'package:quick_eats_app/core/services/database_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import '../../../cart/domain/entities/cart_item_entity.dart';
+import '../../../cart/domain/usecases/cart_usecases.dart';
 
 class DetailsController extends GetxController {
+  final AddToCartUseCase addToCartUseCase;
+
+  DetailsController(this.addToCartUseCase);
+
   var quantity = 1.obs;
   var total = 0.0.obs;
   var userId = ''.obs;
@@ -40,14 +45,15 @@ class DetailsController extends GetxController {
       return;
     }
 
-    Map<String, dynamic> addFoodtoCart = {
-      "Name": name,
-      "Quantity": quantity.value.toString(),
-      "Total": total.value.toStringAsFixed(2),
-      "Image": image,
-    };
+    final cartItem = CartItemEntity(
+      id: '', // Firestore will generate ID if we use add()
+      name: name,
+      quantity: quantity.value.toString(),
+      total: total.value.toStringAsFixed(2),
+      image: image,
+    );
 
-    await DatabaseMethods().addFoodToCart(addFoodtoCart, userId.value);
+    await addToCartUseCase.execute(cartItem, userId.value);
     Get.snackbar("Success", "Food Added to Cart!", snackPosition: SnackPosition.BOTTOM);
   }
 }

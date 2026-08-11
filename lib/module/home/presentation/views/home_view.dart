@@ -2,6 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/color_const.dart';
+import 'package:quick_eats_app/core/constant/image_const.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/module/home/presentation/controllers/home_controller.dart';
 import 'package:quick_eats_app/core/widget/widget_support.dart';
@@ -23,7 +26,7 @@ class HomeView extends GetView<HomeController> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Obx(() => Text(
-                    "Hello ${controller.userName.value},",
+                    "${TextConst.hello}${controller.userName.value},",
                     style: AppWidget.boldTextFieldStyle(),
                   )),
                   GestureDetector(
@@ -32,12 +35,12 @@ class HomeView extends GetView<HomeController> {
                       margin: EdgeInsets.only(right: 20.w),
                       padding: EdgeInsets.all(3.r),
                       decoration: BoxDecoration(
-                        color: Colors.black,
+                        color: ColorConst.black,
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Icon(
                         Icons.shopping_cart,
-                        color: Colors.white,
+                        color: ColorConst.white,
                         size: 24.r,
                       ),
                     ),
@@ -46,11 +49,11 @@ class HomeView extends GetView<HomeController> {
               ),
               SizedBox(height: 20.h),
               Text(
-                "Delicious Food",
+                TextConst.deliciousFood,
                 style: AppWidget.HeadlineTextFieldStyle(),
               ),
               Text(
-                "Discover and Get Great Food",
+                TextConst.discoverFood,
                 style: AppWidget.LightTextFieldStyle(),
               ),
               SizedBox(height: 20.h),
@@ -76,10 +79,10 @@ class HomeView extends GetView<HomeController> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        categoryIcon("Ice-cream", "images/ice-cream.png"),
-        categoryIcon("Pizza", "images/pizza.png"),
-        categoryIcon("Salad", "images/salad.png"),
-        categoryIcon("Burger", "images/burger.png"),
+        categoryIcon(TextConst.iceCream, ImageConst.iceCream),
+        categoryIcon(TextConst.pizza, ImageConst.pizza),
+        categoryIcon(TextConst.salad, ImageConst.salad),
+        categoryIcon(TextConst.burger, ImageConst.burger),
       ],
     );
   }
@@ -94,7 +97,7 @@ class HomeView extends GetView<HomeController> {
           borderRadius: BorderRadius.circular(10.r),
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected ? Colors.black : Colors.white,
+              color: isSelected ? ColorConst.black : ColorConst.white,
               borderRadius: BorderRadius.circular(10.r),
             ),
             padding: EdgeInsets.all(8.r),
@@ -103,7 +106,7 @@ class HomeView extends GetView<HomeController> {
               height: 40.h,
               width: 40.w,
               fit: BoxFit.cover,
-              color: isSelected ? Colors.white : Colors.black,
+              color: isSelected ? ColorConst.white : ColorConst.black,
             ),
           ),
         ),
@@ -161,7 +164,7 @@ class HomeView extends GetView<HomeController> {
                             Text(
                               ds["Name"],
                               style: TextStyle(
-                                color: Colors.black,
+                                color: ColorConst.black,
                                 fontSize: 17.sp,
                                 fontWeight: FontWeight.w700,
                                 fontFamily: 'Poppins',

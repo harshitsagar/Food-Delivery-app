@@ -10,8 +10,11 @@ import 'package:quick_eats_app/module/cart/presentation/views/order_tracking_vie
 import 'package:quick_eats_app/module/food_details/presentation/views/details_view.dart';
 import 'package:quick_eats_app/module/main_navigation/presentation/views/navigation_view.dart';
 import 'package:quick_eats_app/module/notifications/presentation/views/notification_view.dart';
+import 'package:quick_eats_app/module/notifications/presentation/bindings/notification_binding.dart';
 import 'package:quick_eats_app/module/onboarding/presentation/views/onboarding_view.dart';
+import 'package:quick_eats_app/module/onboarding/presentation/bindings/onboarding_binding.dart';
 import 'package:quick_eats_app/module/splash/presentation/views/splash_view.dart';
+import 'package:quick_eats_app/module/splash/presentation/bindings/splash_binding.dart';
 import 'package:quick_eats_app/module/auth/presentation/bindings/auth_binding.dart';
 import 'package:quick_eats_app/module/home/presentation/bindings/home_binding.dart';
 import 'package:quick_eats_app/module/profile/presentation/bindings/profile_binding.dart';
@@ -28,11 +31,13 @@ class AppPages {
     GetPage(
       name: AppRoute.splash,
       page: () => const SplashView(),
+      binding: SplashBinding(),
       transition: Transition.leftToRightWithFade,
     ),
     GetPage(
       name: AppRoute.onboarding,
       page: () => const OnboardingView(),
+      binding: OnboardingBinding(),
       transition: Transition.leftToRightWithFade,
     ),
     GetPage(
@@ -62,6 +67,7 @@ class AppPages {
     GetPage(
       name: AppRoute.notifications,
       page: () => const NotificationView(),
+      binding: NotificationBinding(),
       transition: Transition.leftToRightWithFade,
     ),
     GetPage(
@@ -73,6 +79,7 @@ class AppPages {
     GetPage(
       name: AppRoute.orderTracking,
       page: () => const OrderTrackingView(),
+      binding: CartBinding(),
       transition: Transition.leftToRightWithFade,
     ),
     GetPage(
