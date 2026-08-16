@@ -32,7 +32,7 @@ class SignupView extends GetView<SignupController> {
           SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 0.46.sh),
+                SizedBox(height: 0.45.sh),
                 Container(
                   width: double.infinity,
                   padding: EdgeInsets.only(top: 12.h, left: 25.w, right: 25.w, bottom: 35.h),
