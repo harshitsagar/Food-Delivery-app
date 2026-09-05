@@ -82,11 +82,6 @@ flutter:
     - assets/images/onboarding/
     - assets/images/auth/
     - images/
-    - images/apple_logo.png
-    - images/twitter.png
-    - images/google_logo.png
-    - images/splash_logo.png
-    - images/uncle_jee.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
