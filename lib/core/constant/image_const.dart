@@ -28,5 +28,5 @@ class ImageConst {
   static const String foodBanner = "images/food.jpg";
 
   // Notifications
-  static const String uncleJee = 'images/uncle_jee.jpeg';
+  static const String uncleJee = 'images/uncle_jee.png';
 }

@@ -13,69 +13,79 @@ class NotificationView extends GetView<NotificationController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ColorConst.white,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(left: 20.w, top: 100.h, right: 20.w),
-              child: Text(
-                TextConst.notificationTitle,
-                textAlign: TextAlign.start,
-                style: GoogleFonts.poppins(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w700,
-                  color: ColorConst.black,
-                ),
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20.w),
-              child: Text(
-                TextConst.notificationSubtitle,
-                textAlign: TextAlign.start,
-                style: GoogleFonts.poppins(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w400,
-                  color: ColorConst.grey,
-                ),
-              ),
-            ),
-            SizedBox(height: 30.h),
-            Image.asset(
-              ImageConst.uncleJee,
-              height: 320.h,
-              width: 320.w,
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 20.w, top: 40.h, right: 20.w),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => controller.goToHome(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorConst.deepOrange,
-                    padding: EdgeInsets.symmetric(vertical: 16.h),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                  ),
-                  child: Text(
-                    TextConst.turnOnNotification,
-                    style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: ColorConst.white),
+      body: Container(
+        height: 1.sh,
+        width: 1.sw,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: ColorConst.screenBackgroundGradient,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 20.w, top: 100.h, right: 20.w),
+                child: Text(
+                  TextConst.notificationTitle,
+                  textAlign: TextAlign.start,
+                  style: GoogleFonts.poppins(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.w700,
+                    color: ColorConst.black,
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 16.h),
-            GestureDetector(
-              onTap: () => controller.goToHome(),
-              child: Text(
-                TextConst.notNow,
-                style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: ColorConst.deepOrange),
+              SizedBox(height: 12.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
+                child: Text(
+                  TextConst.notificationSubtitle,
+                  textAlign: TextAlign.start,
+                  style: GoogleFonts.poppins(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w400,
+                    color: ColorConst.grey,
+                  ),
+                ),
               ),
-            ),
-          ],
+              SizedBox(height: 30.h),
+              Image.asset(
+                ImageConst.uncleJee,
+                height: 320.h,
+                width: 320.w,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 20.w, top: 40.h, right: 20.w),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => controller.goToHome(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ColorConst.deepOrange,
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    ),
+                    child: Text(
+                      TextConst.turnOnNotification,
+                      style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w600, color: ColorConst.white),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              GestureDetector(
+                onTap: () => controller.goToHome(),
+                child: Text(
+                  TextConst.notNow,
+                  style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.w700, color: ColorConst.deepOrange),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
