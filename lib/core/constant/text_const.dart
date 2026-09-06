@@ -158,4 +158,5 @@ class TextConst {
   static const String notificationSubtitle = "Allow push notifications to get real-time updates on your order status.";
   static const String turnOnNotification = "Turn on Notification";
   static const String notNow = "Not Now";
+  static const String notificationsLabel = "Notifications";
 }

@@ -5,6 +5,7 @@ import 'package:quick_eats_app/core/constant/color_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import 'package:quick_eats_app/core/services/notification_helper.dart';
 import '../../domain/usecases/cart_usecases.dart';
 
 class CartController extends GetxController {
@@ -31,6 +32,12 @@ class CartController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    loadCart();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
     loadCart();
   }
 
@@ -61,8 +68,26 @@ class CartController extends GetxController {
   Future<void> placeOrder() async {
     if (isCheckingOut.value || userId.value.isEmpty) return;
 
-    if (double.parse(walletBalance.value) < totalAmount.value) {
-      Get.snackbar(TextConst.error, TextConst.insufficientBalance, backgroundColor: ColorConst.red, colorText: ColorConst.white);
+    if (totalAmount.value <= 0) {
+      Get.snackbar(
+        "Cart is Empty 🛒",
+        "Your cart is empty! Please add some items to your cart before placing an order.",
+        backgroundColor: ColorConst.orange,
+        colorText: ColorConst.white,
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    double currentWallet = double.tryParse(walletBalance.value) ?? 0.0;
+    if (currentWallet < totalAmount.value) {
+      Get.snackbar(
+        "Insufficient Balance",
+        "Wallet balance (₹${currentWallet.toStringAsFixed(0)}) is less than total amount (₹${totalAmount.value.toStringAsFixed(0)}). Please add money to your wallet.",
+        backgroundColor: ColorConst.red,
+        colorText: ColorConst.white,
+        duration: const Duration(seconds: 4),
+      );
       return;
     }
 
@@ -84,26 +109,46 @@ class CartController extends GetxController {
 
       await placeOrderUseCase.execute(orderData);
 
-      double newBalance = double.parse(walletBalance.value) - totalAmount.value;
-      await updateWalletUseCase.execute(userId.value, newBalance.toString());
+      await NotificationHelper.showInAppNotification(
+        title: "Order Placed Successfully! 🎉",
+        body: "Your order (#${orderId.substring(orderId.length - 6)}) worth ₹${totalAmount.value.toStringAsFixed(0)} has been placed and is being prepared.",
+        route: AppRoute.orderTracking,
+      );
+
+      double newBalance = currentWallet - totalAmount.value;
+      try {
+        await updateWalletUseCase.execute(userId.value, newBalance.toString());
+      } catch (e) {
+        print("Error updating wallet in Firestore: $e");
+      }
       await SharedPreferenceHelper.saveUserWallet(newBalance.toString());
       walletBalance.value = newBalance.toString();
 
-      await clearCartUseCase.execute(userId.value);
+      try {
+        await clearCartUseCase.execute(userId.value);
+        totalAmount.value = 0.0;
+      } catch (e) {
+        print("Error clearing cart: $e");
+      }
 
       isCheckingOut.value = false;
       Get.toNamed(AppRoute.orderTracking, arguments: {'orderId': orderId});
     } catch (e) {
       isCheckingOut.value = false;
+      print("Error placing order: $e");
       Get.snackbar(TextConst.error, "${TextConst.errorPlacingOrder}${e.toString()}", backgroundColor: ColorConst.red, colorText: ColorConst.white);
     }
   }
 
   Future<List<Map<String, dynamic>>> _getCartItems() async {
     List<Map<String, dynamic>> items = [];
-    if (foodStream.value != null) {
-      var snapshot = await foodStream.value!.first;
-      for (var doc in snapshot.docs) {
+    try {
+      var querySnapshot = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId.value)
+          .collection('Cart')
+          .get();
+      for (var doc in querySnapshot.docs) {
         items.add({
           'name': doc['Name']?.toString() ?? 'Unknown',
           'price': doc['Total']?.toString() ?? '0',
@@ -111,6 +156,8 @@ class CartController extends GetxController {
           'image': doc['Image']?.toString() ?? '',
         });
       }
+    } catch (e) {
+      print("Error fetching cart items: $e");
     }
     return items;
   }

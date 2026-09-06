@@ -13,7 +13,12 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
 
   @override
   Widget build(BuildContext context) {
-    final String orderId = Get.arguments['orderId'];
+    final args = Get.arguments;
+    final String orderId = (args != null && args is Map && args['orderId'] != null)
+        ? args['orderId'].toString()
+        : '';
+    
+    // Automatically loads passed orderId or fetches latest order
     controller.loadOrder(orderId);
 
     return Scaffold(
@@ -25,111 +30,159 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
           onPressed: () => Get.back(),
         ),
       ),
-      body: Obx(() => StreamBuilder<DocumentSnapshot>(
-        stream: controller.orderStream.value,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) return Center(child: Text('${TextConst.error}: ${snapshot.error}'));
-          if (!snapshot.hasData || !snapshot.data!.exists) return const Center(child: CircularProgressIndicator());
-
-          final orderData = snapshot.data!.data() as Map<String, dynamic>;
-          final status = orderData['status'] as String;
-          final totalAmount = orderData['totalAmount'] as double;
-          final items = orderData['items'] as List<dynamic>;
-          final orderDate = (orderData['orderDate'] as Timestamp).toDate();
-
-          return SingleChildScrollView(
-            padding: EdgeInsets.all(16.r),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Card(
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.r),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Order #${orderId.substring(orderId.length - 6)}', style: AppWidget.boldTextFieldStyle()),
-                            Container(
-                              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                              decoration: BoxDecoration(color: _getStatusColor(status), borderRadius: BorderRadius.circular(20.r)),
-                              child: Text(status, style: const TextStyle(color: ColorConst.white, fontWeight: FontWeight.bold)),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 12.h),
-                        Text('Placed on ${DateFormat('MMM dd, yyyy - hh:mm a').format(orderDate)}', style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
-                        SizedBox(height: 16.h),
-                        _buildStatusIndicator(status),
-                      ],
-                    ),
+      body: Obx(() {
+        if (controller.isNotFound.value) {
+          return Center(
+            child: Padding(
+              padding: EdgeInsets.all(20.r),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.receipt_long_outlined, size: 60.r, color: ColorConst.grey),
+                  SizedBox(height: 16.h),
+                  Text(
+                    "No active orders found",
+                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.grey600),
                   ),
-                ),
-                SizedBox(height: 20.h),
-                Text(TextConst.yourOrder, style: AppWidget.boldTextFieldStyle()),
-                SizedBox(height: 12.h),
-                ...items.map((item) => _buildOrderItem(item)).toList(),
-                SizedBox(height: 20.h),
-                Text(TextConst.deliveryInfo, style: AppWidget.boldTextFieldStyle()),
-                SizedBox(height: 12.h),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.r),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.location_on, color: ColorConst.red400, size: 20.r),
-                            SizedBox(width: 10.w),
-                            Text(TextConst.deliveryAddress, style: AppWidget.semiBoldFieldStyle()),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(orderData['deliveryAddress'] ?? TextConst.notSpecified, style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
-                        SizedBox(height: 16.h),
-                        Row(
-                          children: [
-                            Icon(Icons.access_time, color: ColorConst.blue400, size: 20.r),
-                            SizedBox(width: 10.w),
-                            Text(TextConst.estimatedDelivery, style: AppWidget.semiBoldFieldStyle()),
-                          ],
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(_getEstimatedDeliveryTime(status), style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20.h),
-                Text(TextConst.paymentSummary, style: AppWidget.boldTextFieldStyle()),
-                SizedBox(height: 12.h),
-                Card(
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                  child: Padding(
-                    padding: EdgeInsets.all(16.r),
-                    child: Column(
-                      children: [
-                        _buildPaymentRow(TextConst.subtotal, '₹${(totalAmount * 0.9).toStringAsFixed(2)}'),
-                        _buildPaymentRow(TextConst.deliveryFee, '₹${(totalAmount * 0.1).toStringAsFixed(2)}'),
-                        const Divider(),
-                        _buildPaymentRow(TextConst.totalAmount, '₹${totalAmount.toStringAsFixed(2)}', isTotal: true),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
-        },
-      )),
+        }
+
+        if (controller.orderStream.value == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return StreamBuilder<DocumentSnapshot>(
+          stream: controller.orderStream.value,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: Text('${TextConst.error}: ${snapshot.error}'));
+            }
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || !snapshot.data!.exists) {
+              return Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20.r),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.hourglass_empty, size: 60.r, color: ColorConst.grey),
+                      SizedBox(height: 16.h),
+                      Text(
+                        "Loading order details...",
+                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.grey600),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+
+            final orderData = snapshot.data!.data() as Map<String, dynamic>;
+            final currentOrderId = orderData['orderId']?.toString() ?? orderId;
+            final status = orderData['status'] as String;
+            final totalAmount = (orderData['totalAmount'] as num).toDouble();
+            final items = orderData['items'] as List<dynamic>;
+            final orderDate = (orderData['orderDate'] as Timestamp).toDate();
+
+            return SingleChildScrollView(
+              padding: EdgeInsets.all(16.r),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Order #${currentOrderId.length >= 6 ? currentOrderId.substring(currentOrderId.length - 6) : currentOrderId}', style: AppWidget.boldTextFieldStyle()),
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                                decoration: BoxDecoration(color: _getStatusColor(status), borderRadius: BorderRadius.circular(20.r)),
+                                child: Text(status, style: const TextStyle(color: ColorConst.white, fontWeight: FontWeight.bold)),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12.h),
+                          Text('Placed on ${DateFormat('MMM dd, yyyy - hh:mm a').format(orderDate)}', style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
+                          SizedBox(height: 16.h),
+                          _buildStatusIndicator(status),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(TextConst.yourOrder, style: AppWidget.boldTextFieldStyle()),
+                  SizedBox(height: 12.h),
+                  ...items.map((item) => _buildOrderItem(item)).toList(),
+                  SizedBox(height: 20.h),
+                  Text(TextConst.deliveryInfo, style: AppWidget.boldTextFieldStyle()),
+                  SizedBox(height: 12.h),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.r),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.location_on, color: ColorConst.red400, size: 20.r),
+                              SizedBox(width: 10.w),
+                              Text(TextConst.deliveryAddress, style: AppWidget.semiBoldFieldStyle()),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(orderData['deliveryAddress'] ?? TextConst.notSpecified, style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
+                          SizedBox(height: 16.h),
+                          Row(
+                            children: [
+                              Icon(Icons.access_time, color: ColorConst.blue400, size: 20.r),
+                              SizedBox(width: 10.w),
+                              Text(TextConst.estimatedDelivery, style: AppWidget.semiBoldFieldStyle()),
+                            ],
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(_getEstimatedDeliveryTime(status), style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Text(TextConst.paymentSummary, style: AppWidget.boldTextFieldStyle()),
+                  SizedBox(height: 12.h),
+                  Card(
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    child: Padding(
+                      padding: EdgeInsets.all(16.r),
+                      child: Column(
+                        children: [
+                          _buildPaymentRow(TextConst.subtotal, '₹${(totalAmount * 0.9).toStringAsFixed(2)}'),
+                          _buildPaymentRow(TextConst.deliveryFee, '₹${(totalAmount * 0.1).toStringAsFixed(2)}'),
+                          const Divider(),
+                          _buildPaymentRow(TextConst.totalAmount, '₹${totalAmount.toStringAsFixed(2)}', isTotal: true),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      }),
     );
   }
 

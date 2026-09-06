@@ -63,7 +63,7 @@ class NotificationView extends GetView<NotificationController> {
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => controller.goToHome(),
+                    onPressed: () => controller.turnOnNotifications(),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: ColorConst.deepOrange,
                       padding: EdgeInsets.symmetric(vertical: 16.h),

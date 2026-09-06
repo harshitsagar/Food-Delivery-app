@@ -67,6 +67,8 @@ class ProfileView extends GetView<ProfileController> {
                   SizedBox(height: 20.h),
                   _buildProfileItem(Icons.email, TextConst.emailLabel, controller.email.value),
                   SizedBox(height: 20.h),
+                  _buildSwitchItem(Icons.notifications, TextConst.notificationsLabel, controller.isNotificationsEnabled, (val) => controller.toggleNotifications(val)),
+                  SizedBox(height: 20.h),
                   _buildSimpleItem(Icons.description, TextConst.termsCondition),
                   SizedBox(height: 20.h),
                   _buildActionItem(Icons.person, TextConst.sellerLogin, () {
@@ -119,6 +121,33 @@ class ProfileView extends GetView<ProfileController> {
               Icon(icon, color: ColorConst.black, size: 24.r),
               SizedBox(width: 20.w),
               Text(title, style: TextStyle(color: ColorConst.black, fontSize: 20.sp, fontWeight: FontWeight.w600)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSwitchItem(IconData icon, String title, RxBool value, Function(bool) onChanged) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.w),
+      child: Material(
+        elevation: 5, borderRadius: BorderRadius.circular(10.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 10.w),
+          decoration: BoxDecoration(color: ColorConst.white, borderRadius: BorderRadius.circular(10.r)),
+          child: Row(
+            children: [
+              Icon(icon, color: ColorConst.black, size: 24.r),
+              SizedBox(width: 20.w),
+              Expanded(
+                child: Text(title, style: TextStyle(color: ColorConst.black, fontSize: 20.sp, fontWeight: FontWeight.w600)),
+              ),
+              Obx(() => Switch(
+                value: value.value,
+                activeThumbColor: ColorConst.deepOrange,
+                onChanged: onChanged,
+              )),
             ],
           ),
         ),

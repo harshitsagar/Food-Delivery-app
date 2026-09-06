@@ -70,4 +70,23 @@ class SharedPreferenceHelper {
   static Future<String?> getUserProfile() async {
     return _prefs?.getString(userProfileKey);
   }
+
+  static const String notificationHistoryKey = "NOTIFICATION_HISTORY_KEY";
+  static const String unreadNotificationCountKey = "UNREAD_NOTIFICATION_COUNT_KEY";
+
+  static Future<bool> saveNotificationHistory(List<String> history) async {
+    return await _prefs!.setStringList(notificationHistoryKey, history);
+  }
+
+  static List<String> getNotificationHistory() {
+    return _prefs?.getStringList(notificationHistoryKey) ?? [];
+  }
+
+  static Future<bool> saveUnreadNotificationCount(int count) async {
+    return await _prefs!.setInt(unreadNotificationCountKey, count);
+  }
+
+  static int getUnreadNotificationCount() {
+    return _prefs?.getInt(unreadNotificationCountKey) ?? 0;
+  }
 }

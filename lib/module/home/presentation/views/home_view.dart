@@ -7,6 +7,7 @@ import 'package:quick_eats_app/core/constant/image_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
 import 'package:quick_eats_app/module/home/presentation/controllers/home_controller.dart';
+import 'package:quick_eats_app/module/main_navigation/presentation/controllers/navigation_controller.dart';
 import 'package:quick_eats_app/core/widget/widget_support.dart';
 
 class HomeView extends GetView<HomeController> {
@@ -29,21 +30,76 @@ class HomeView extends GetView<HomeController> {
                     "${TextConst.hello}${controller.userName.value},",
                     style: AppWidget.boldTextFieldStyle(),
                   )),
-                  GestureDetector(
-                    onTap: () {}, // Placeholder for cart
-                    child: Container(
-                      margin: EdgeInsets.only(right: 20.w),
-                      padding: EdgeInsets.all(3.r),
-                      decoration: BoxDecoration(
-                        color: ColorConst.black,
-                        borderRadius: BorderRadius.circular(8.r),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Get.toNamed(AppRoute.notificationHistory),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(right: 12.w),
+                              padding: EdgeInsets.all(3.r),
+                              decoration: BoxDecoration(
+                                color: ColorConst.black,
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                              child: Icon(
+                                Icons.notifications,
+                                color: ColorConst.white,
+                                size: 24.r,
+                              ),
+                            ),
+                            Obx(() => controller.unreadCount.value > 0
+                                ? Positioned(
+                                    right: 8.w,
+                                    top: -4.h,
+                                    child: Container(
+                                      padding: EdgeInsets.all(4.r),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      constraints: BoxConstraints(
+                                        minWidth: 16.r,
+                                        minHeight: 16.r,
+                                      ),
+                                      child: Text(
+                                        '${controller.unreadCount.value}',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  )
+                                : const SizedBox.shrink()),
+                          ],
+                        ),
                       ),
-                      child: Icon(
-                        Icons.shopping_cart,
-                        color: ColorConst.white,
-                        size: 24.r,
+                      GestureDetector(
+                        onTap: () {
+                          if (Get.isRegistered<NavigationController>()) {
+                            Get.find<NavigationController>().changeIndex(1);
+                          }
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(right: 20.w),
+                          padding: EdgeInsets.all(3.r),
+                          decoration: BoxDecoration(
+                            color: ColorConst.black,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Icon(
+                            Icons.shopping_cart,
+                            color: ColorConst.white,
+                            size: 24.r,
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ],
               ),

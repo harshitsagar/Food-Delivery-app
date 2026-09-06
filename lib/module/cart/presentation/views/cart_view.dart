@@ -41,7 +41,12 @@ class CartView extends GetView<CartController> {
                   builder: (context, snapshot) {
                     if (snapshot.hasError) return Center(child: Text('${TextConst.error}: ${snapshot.error}'));
                     if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) return Center(child: Text(TextConst.cartEmpty));
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        controller.totalAmount.value = 0.0;
+                      });
+                      return Center(child: Text(TextConst.cartEmpty));
+                    }
 
                     // Update total in controller
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -115,20 +120,29 @@ class CartView extends GetView<CartController> {
               ),
             ),
             SizedBox(height: 20.h),
-            Obx(() => GestureDetector(
-              onTap: () => controller.placeOrder(),
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10.h),
-                width: 1.sw,
-                decoration: BoxDecoration(color: ColorConst.black, borderRadius: BorderRadius.circular(10.r)),
-                margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 20.h),
-                child: Center(
-                  child: controller.isCheckingOut.value
-                      ? SizedBox(height: 25.r, width: 25.r, child: const CircularProgressIndicator(color: ColorConst.white, strokeWidth: 2))
-                      : Text(TextConst.placeOrder, style: TextStyle(color: ColorConst.white, fontSize: 20.sp, fontWeight: FontWeight.bold)),
+            Obx(() {
+              bool isCartEmpty = controller.totalAmount.value <= 0;
+              return GestureDetector(
+                onTap: () => controller.placeOrder(),
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 10.h),
+                  width: 1.sw,
+                  decoration: BoxDecoration(
+                    color: isCartEmpty ? ColorConst.grey : ColorConst.black,
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  margin: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 20.h),
+                  child: Center(
+                    child: controller.isCheckingOut.value
+                        ? SizedBox(height: 25.r, width: 25.r, child: const CircularProgressIndicator(color: ColorConst.white, strokeWidth: 2))
+                        : Text(
+                            isCartEmpty ? "Your Cart is Empty" : TextConst.placeOrder,
+                            style: TextStyle(color: ColorConst.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+                          ),
+                  ),
                 ),
-              ),
-            )),
+              );
+            }),
           ],
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_pages.dart';
+import 'package:quick_eats_app/core/services/push_notification_service.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
 import 'firebase_options.dart';
 
@@ -13,6 +14,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await SharedPreferenceHelper.init();
+  await PushNotificationService.init();
 
   runApp(const MyApp());
 }

@@ -11,6 +11,8 @@ import 'package:quick_eats_app/module/food_details/presentation/views/details_vi
 import 'package:quick_eats_app/module/main_navigation/presentation/views/navigation_view.dart';
 import 'package:quick_eats_app/module/notifications/presentation/views/notification_view.dart';
 import 'package:quick_eats_app/module/notifications/presentation/bindings/notification_binding.dart';
+import 'package:quick_eats_app/module/notifications/presentation/views/notification_history_view.dart';
+import 'package:quick_eats_app/module/notifications/presentation/bindings/notification_history_binding.dart';
 import 'package:quick_eats_app/module/onboarding/presentation/views/onboarding_view.dart';
 import 'package:quick_eats_app/module/onboarding/presentation/bindings/onboarding_binding.dart';
 import 'package:quick_eats_app/module/splash/presentation/views/splash_view.dart';
@@ -68,6 +70,12 @@ class AppPages {
       name: AppRoute.notifications,
       page: () => const NotificationView(),
       binding: NotificationBinding(),
+      transition: Transition.leftToRightWithFade,
+    ),
+    GetPage(
+      name: AppRoute.notificationHistory,
+      page: () => const NotificationHistoryView(),
+      binding: NotificationHistoryBinding(),
       transition: Transition.leftToRightWithFade,
     ),
     GetPage(

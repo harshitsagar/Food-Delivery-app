@@ -7,8 +7,11 @@ class HomeController extends GetxController {
 
   HomeController(this.getFoodItemsUseCase);
 
+  static HomeController get to => Get.find<HomeController>();
+
   var selectedCategory = 'Pizza'.obs;
   var userName = 'User'.obs;
+  var unreadCount = 0.obs;
   
   Rx<Stream?> foodItemStream = Rx<Stream?>(null);
 
@@ -17,6 +20,7 @@ class HomeController extends GetxController {
     super.onInit();
     getUserInfo();
     loadFoodItems('Pizza');
+    loadUnreadCount();
   }
 
   Future<void> getUserInfo() async {
@@ -24,6 +28,15 @@ class HomeController extends GetxController {
     if (name != null) {
       userName.value = name;
     }
+  }
+
+  void loadUnreadCount() {
+    unreadCount.value = SharedPreferenceHelper.getUnreadNotificationCount();
+  }
+
+  void resetUnreadCount() {
+    unreadCount.value = 0;
+    SharedPreferenceHelper.saveUnreadNotificationCount(0);
   }
 
   Future<void> loadFoodItems(String category) async {

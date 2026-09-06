@@ -22,7 +22,8 @@ class NavigationView extends GetView<NavigationController> {
     ];
 
     return Scaffold(
-      bottomNavigationBar: CurvedNavigationBar(
+      bottomNavigationBar: Obx(() => CurvedNavigationBar(
+          index: controller.currentIndex.value,
           height: 65.h,
           backgroundColor: ColorConst.white,
           color: ColorConst.black,
@@ -34,7 +35,7 @@ class NavigationView extends GetView<NavigationController> {
             Icon(Icons.wallet_outlined, color: ColorConst.white, size: 28.r),
             Icon(Icons.person_outline, color: ColorConst.white, size: 28.r),
           ]
-      ),
+      )),
       body: Obx(() => pages[controller.currentIndex.value]),
     );
   }
