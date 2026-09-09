@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:quick_eats_app/core/constant/color_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
@@ -63,6 +62,61 @@ class CartController extends GetxController {
       calculatedTotal += double.tryParse(totalString) ?? 0;
     }
     totalAmount.value = calculatedTotal;
+  }
+
+  Future<void> removeCartItem(String docId) async {
+    if (userId.value.isEmpty || docId.isEmpty) return;
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(userId.value)
+          .collection('Cart')
+          .doc(docId)
+          .delete();
+    } catch (e) {
+      print("Error removing item from cart: $e");
+    }
+  }
+
+  Future<void> updateQuantity(DocumentSnapshot ds, bool isIncrement) async {
+    if (userId.value.isEmpty) return;
+    try {
+      int currentQty = int.tryParse(ds["Quantity"].toString()) ?? 1;
+      double currentTotal = double.tryParse(ds["Total"].toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+      double unitPrice = currentQty > 0 ? currentTotal / currentQty : currentTotal;
+
+      if (isIncrement) {
+        int newQty = currentQty + 1;
+        double newTotal = unitPrice * newQty;
+        await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(userId.value)
+            .collection('Cart')
+            .doc(ds.id)
+            .update({
+              'Quantity': newQty.toString(),
+              'Total': newTotal.toStringAsFixed(2),
+            });
+      } else {
+        if (currentQty <= 1) {
+          await removeCartItem(ds.id);
+        } else {
+          int newQty = currentQty - 1;
+          double newTotal = unitPrice * newQty;
+          await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(userId.value)
+              .collection('Cart')
+              .doc(ds.id)
+              .update({
+                'Quantity': newQty.toString(),
+                'Total': newTotal.toStringAsFixed(2),
+              });
+        }
+      }
+    } catch (e) {
+      print("Error updating item quantity: $e");
+    }
   }
 
   Future<void> placeOrder() async {

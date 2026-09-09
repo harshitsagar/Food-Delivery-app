@@ -9,12 +9,12 @@ class DetailsBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<CartRepository>()) {
-      Get.lazyPut<CartRemoteDataSource>(() => CartRemoteDataSourceImpl());
-      Get.lazyPut<CartRepository>(() => CartRepositoryImpl(remoteDataSource: Get.find<CartRemoteDataSource>()));
+      Get.lazyPut<CartRemoteDataSource>(() => CartRemoteDataSourceImpl(), fenix: true);
+      Get.lazyPut<CartRepository>(() => CartRepositoryImpl(remoteDataSource: Get.find<CartRemoteDataSource>()), fenix: true);
     }
     
-    Get.lazyPut<AddToCartUseCase>(() => AddToCartUseCase(Get.find<CartRepository>()));
+    Get.lazyPut<AddToCartUseCase>(() => AddToCartUseCase(Get.find<CartRepository>()), fenix: true);
 
-    Get.lazyPut<DetailsController>(() => DetailsController(Get.find<AddToCartUseCase>()));
+    Get.lazyPut<DetailsController>(() => DetailsController(Get.find<AddToCartUseCase>()), fenix: true);
   }
 }

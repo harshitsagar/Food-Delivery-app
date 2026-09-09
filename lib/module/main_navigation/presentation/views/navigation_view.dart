@@ -22,10 +22,11 @@ class NavigationView extends GetView<NavigationController> {
     ];
 
     return Scaffold(
+      extendBody: true,
       bottomNavigationBar: Obx(() => CurvedNavigationBar(
           index: controller.currentIndex.value,
           height: 65.h,
-          backgroundColor: ColorConst.white,
+          backgroundColor: Colors.transparent,
           color: ColorConst.black,
           animationDuration: const Duration(milliseconds: 500),
           onTap: (index) => controller.changeIndex(index),

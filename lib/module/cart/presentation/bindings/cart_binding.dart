@@ -10,24 +10,24 @@ import '../controllers/order_tracking_controller.dart';
 class CartBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<CartRemoteDataSource>(() => CartRemoteDataSourceImpl());
-    Get.lazyPut<CartRepository>(() => CartRepositoryImpl(remoteDataSource: Get.find<CartRemoteDataSource>()));
+    Get.lazyPut<CartRemoteDataSource>(() => CartRemoteDataSourceImpl(), fenix: true);
+    Get.lazyPut<CartRepository>(() => CartRepositoryImpl(remoteDataSource: Get.find<CartRemoteDataSource>()), fenix: true);
 
-    Get.lazyPut<GetCartItemsUseCase>(() => GetCartItemsUseCase(Get.find<CartRepository>()));
-    Get.lazyPut<PlaceOrderUseCase>(() => PlaceOrderUseCase(Get.find<CartRepository>()));
-    Get.lazyPut<ClearCartUseCase>(() => ClearCartUseCase(Get.find<CartRepository>()));
-    Get.lazyPut<UpdateWalletUseCase>(() => UpdateWalletUseCase(Get.find<CartRepository>()));
-    Get.lazyPut<GetOrderUseCase>(() => GetOrderUseCase(Get.find<CartRepository>()));
+    Get.lazyPut<GetCartItemsUseCase>(() => GetCartItemsUseCase(Get.find<CartRepository>()), fenix: true);
+    Get.lazyPut<PlaceOrderUseCase>(() => PlaceOrderUseCase(Get.find<CartRepository>()), fenix: true);
+    Get.lazyPut<ClearCartUseCase>(() => ClearCartUseCase(Get.find<CartRepository>()), fenix: true);
+    Get.lazyPut<UpdateWalletUseCase>(() => UpdateWalletUseCase(Get.find<CartRepository>()), fenix: true);
+    Get.lazyPut<GetOrderUseCase>(() => GetOrderUseCase(Get.find<CartRepository>()), fenix: true);
 
     Get.lazyPut<CartController>(() => CartController(
           Get.find<GetCartItemsUseCase>(),
           Get.find<PlaceOrderUseCase>(),
           Get.find<ClearCartUseCase>(),
           Get.find<UpdateWalletUseCase>(),
-        ));
+        ), fenix: true);
 
     Get.lazyPut<OrderTrackingController>(() => OrderTrackingController(
           Get.find<GetOrderUseCase>(),
-        ));
+        ), fenix: true);
   }
 }
