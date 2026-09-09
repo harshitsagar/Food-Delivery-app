@@ -2,10 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:quick_eats_app/core/constant/color_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
-import 'package:quick_eats_app/core/widget/widget_support.dart';
 import '../controllers/order_tracking_controller.dart';
 
 class OrderTrackingView extends GetView<OrderTrackingController> {
@@ -18,180 +18,289 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
         ? args['orderId'].toString()
         : '';
     
-    // Automatically loads passed orderId or fetches latest order
     controller.loadOrder(orderId);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(TextConst.orderTracking),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Get.back(),
+      body: Container(
+        width: 1.sw,
+        height: 1.sh,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: ColorConst.screenBackgroundGradient,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Custom Header
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Get.back(),
+                      child: Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: ColorConst.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 6,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.arrow_back_ios_new_outlined,
+                          color: ColorConst.black,
+                          size: 20.r,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          TextConst.orderTracking,
+                          style: GoogleFonts.poppins(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                            color: ColorConst.black,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 36.w),
+                  ],
+                ),
+              ),
+
+              // Content Body
+              Expanded(
+                child: Obx(() {
+                  if (controller.isNotFound.value) {
+                    return Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(20.r),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.receipt_long_outlined, size: 60.r, color: ColorConst.grey),
+                            SizedBox(height: 16.h),
+                            Text(
+                              "No active orders found",
+                              style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.grey600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  if (controller.orderStream.value == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  return StreamBuilder<DocumentSnapshot>(
+                    stream: controller.orderStream.value,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(child: Text('${TextConst.error}: ${snapshot.error}'));
+                      }
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                      if (!snapshot.hasData || !snapshot.data!.exists) {
+                        return Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20.r),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.hourglass_empty, size: 60.r, color: ColorConst.grey),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  "Loading order details...",
+                                  style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.grey600),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      final orderData = snapshot.data!.data() as Map<String, dynamic>;
+                      final currentOrderId = orderData['orderId']?.toString() ?? orderId;
+                      final status = orderData['status'] as String;
+                      final totalAmount = (orderData['totalAmount'] as num).toDouble();
+                      final items = orderData['items'] as List<dynamic>;
+                      final orderDate = (orderData['orderDate'] as Timestamp).toDate();
+
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.all(20.r),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(16.r),
+                              decoration: BoxDecoration(
+                                color: ColorConst.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Order #${currentOrderId.length >= 6 ? currentOrderId.substring(currentOrderId.length - 6) : currentOrderId}',
+                                        style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(status),
+                                          borderRadius: BorderRadius.circular(20.r),
+                                        ),
+                                        child: Text(
+                                          status,
+                                          style: GoogleFonts.poppins(color: ColorConst.white, fontWeight: FontWeight.bold, fontSize: 12.sp),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 8.h),
+                                  Text(
+                                    'Placed on ${DateFormat('MMM dd, yyyy - hh:mm a').format(orderDate)}',
+                                    style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 13.sp),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  _buildStatusIndicator(status),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20.h),
+                            Text(
+                              TextConst.yourOrder,
+                              style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
+                            ),
+                            SizedBox(height: 12.h),
+                            ...items.map((item) => _buildOrderItem(item)).toList(),
+                            SizedBox(height: 20.h),
+                            Text(
+                              TextConst.deliveryInfo,
+                              style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
+                            ),
+                            SizedBox(height: 12.h),
+                            Container(
+                              padding: EdgeInsets.all(16.r),
+                              decoration: BoxDecoration(
+                                color: ColorConst.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.location_on, color: const Color(0xFFFF5722), size: 22.r),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        TextConst.deliveryAddress,
+                                        style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6.h),
+                                  Text(
+                                    orderData['deliveryAddress'] ?? TextConst.notSpecified,
+                                    style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 13.sp),
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.access_time_filled, color: const Color(0xFFFF5722), size: 22.r),
+                                      SizedBox(width: 10.w),
+                                      Text(
+                                        TextConst.estimatedDelivery,
+                                        style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 6.h),
+                                  Text(
+                                    _getEstimatedDeliveryTime(status),
+                                    style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 13.sp),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20.h),
+                            Text(
+                              TextConst.paymentSummary,
+                              style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
+                            ),
+                            SizedBox(height: 12.h),
+                            Container(
+                              padding: EdgeInsets.all(16.r),
+                              decoration: BoxDecoration(
+                                color: ColorConst.white,
+                                borderRadius: BorderRadius.circular(20.r),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.04),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                children: [
+                                  _buildPaymentRow(TextConst.subtotal, '₹${(totalAmount * 0.9).toStringAsFixed(2)}'),
+                                  _buildPaymentRow(TextConst.deliveryFee, '₹${(totalAmount * 0.1).toStringAsFixed(2)}'),
+                                  const Divider(color: Colors.black12),
+                                  _buildPaymentRow(TextConst.totalAmount, '₹${totalAmount.toStringAsFixed(2)}', isTotal: true),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
-      body: Obx(() {
-        if (controller.isNotFound.value) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(20.r),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.receipt_long_outlined, size: 60.r, color: ColorConst.grey),
-                  SizedBox(height: 16.h),
-                  Text(
-                    "No active orders found",
-                    style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.grey600),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }
-
-        if (controller.orderStream.value == null) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        return StreamBuilder<DocumentSnapshot>(
-          stream: controller.orderStream.value,
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return Center(child: Text('${TextConst.error}: ${snapshot.error}'));
-            }
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (!snapshot.hasData || !snapshot.data!.exists) {
-              return Center(
-                child: Padding(
-                  padding: EdgeInsets.all(20.r),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.hourglass_empty, size: 60.r, color: ColorConst.grey),
-                      SizedBox(height: 16.h),
-                      Text(
-                        "Loading order details...",
-                        style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.grey600),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }
-
-            final orderData = snapshot.data!.data() as Map<String, dynamic>;
-            final currentOrderId = orderData['orderId']?.toString() ?? orderId;
-            final status = orderData['status'] as String;
-            final totalAmount = (orderData['totalAmount'] as num).toDouble();
-            final items = orderData['items'] as List<dynamic>;
-            final orderDate = (orderData['orderDate'] as Timestamp).toDate();
-
-            return SingleChildScrollView(
-              padding: EdgeInsets.all(16.r),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                    child: Padding(
-                      padding: EdgeInsets.all(16.r),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Order #${currentOrderId.length >= 6 ? currentOrderId.substring(currentOrderId.length - 6) : currentOrderId}', style: AppWidget.boldTextFieldStyle()),
-                              Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                                decoration: BoxDecoration(color: _getStatusColor(status), borderRadius: BorderRadius.circular(20.r)),
-                                child: Text(status, style: const TextStyle(color: ColorConst.white, fontWeight: FontWeight.bold)),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 12.h),
-                          Text('Placed on ${DateFormat('MMM dd, yyyy - hh:mm a').format(orderDate)}', style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
-                          SizedBox(height: 16.h),
-                          _buildStatusIndicator(status),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(TextConst.yourOrder, style: AppWidget.boldTextFieldStyle()),
-                  SizedBox(height: 12.h),
-                  ...items.map((item) => _buildOrderItem(item)).toList(),
-                  SizedBox(height: 20.h),
-                  Text(TextConst.deliveryInfo, style: AppWidget.boldTextFieldStyle()),
-                  SizedBox(height: 12.h),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                    child: Padding(
-                      padding: EdgeInsets.all(16.r),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.location_on, color: ColorConst.red400, size: 20.r),
-                              SizedBox(width: 10.w),
-                              Text(TextConst.deliveryAddress, style: AppWidget.semiBoldFieldStyle()),
-                            ],
-                          ),
-                          SizedBox(height: 8.h),
-                          Text(orderData['deliveryAddress'] ?? TextConst.notSpecified, style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
-                          SizedBox(height: 16.h),
-                          Row(
-                            children: [
-                              Icon(Icons.access_time, color: ColorConst.blue400, size: 20.r),
-                              SizedBox(width: 10.w),
-                              Text(TextConst.estimatedDelivery, style: AppWidget.semiBoldFieldStyle()),
-                            ],
-                          ),
-                          SizedBox(height: 8.h),
-                          Text(_getEstimatedDeliveryTime(status), style: TextStyle(color: ColorConst.grey600, fontSize: 14.sp)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 20.h),
-                  Text(TextConst.paymentSummary, style: AppWidget.boldTextFieldStyle()),
-                  SizedBox(height: 12.h),
-                  Card(
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-                    child: Padding(
-                      padding: EdgeInsets.all(16.r),
-                      child: Column(
-                        children: [
-                          _buildPaymentRow(TextConst.subtotal, '₹${(totalAmount * 0.9).toStringAsFixed(2)}'),
-                          _buildPaymentRow(TextConst.deliveryFee, '₹${(totalAmount * 0.1).toStringAsFixed(2)}'),
-                          const Divider(),
-                          _buildPaymentRow(TextConst.totalAmount, '₹${totalAmount.toStringAsFixed(2)}', isTotal: true),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      }),
     );
   }
 
   Color _getStatusColor(String status) {
-    if (status == TextConst.orderPlacedStatus) return ColorConst.orange;
-    if (status == TextConst.orderPreparingStatus) return ColorConst.blue;
-    if (status == TextConst.orderOnTheWayStatus) return ColorConst.purple;
-    if (status == TextConst.orderDeliveredStatus) return ColorConst.green;
-    return ColorConst.grey;
+    if (status == TextConst.orderPlacedStatus) return const Color(0xFFFF5722);
+    if (status == TextConst.orderPreparingStatus) return Colors.blue;
+    if (status == TextConst.orderOnTheWayStatus) return Colors.purple;
+    if (status == TextConst.orderDeliveredStatus) return Colors.green;
+    return Colors.grey;
   }
 
   String _getEstimatedDeliveryTime(String status) {
@@ -205,12 +314,26 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
 
   Widget _buildPaymentRow(String label, String value, {bool isTotal = false}) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
+      padding: EdgeInsets.symmetric(vertical: 6.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(fontSize: isTotal ? 16.sp : 14.sp, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal, color: isTotal ? ColorConst.black : ColorConst.grey600)),
-          Text(value, style: TextStyle(fontSize: isTotal ? 16.sp : 14.sp, fontWeight: isTotal ? FontWeight.bold : FontWeight.normal, color: isTotal ? ColorConst.black : ColorConst.grey600)),
+          Text(
+            label,
+            style: GoogleFonts.poppins(
+              fontSize: isTotal ? 16.sp : 14.sp,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              color: isTotal ? ColorConst.black : Colors.grey[600],
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: isTotal ? 16.sp : 14.sp,
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.bold,
+              color: isTotal ? const Color(0xFFFF5722) : ColorConst.black,
+            ),
+          ),
         ],
       ),
     );
@@ -227,11 +350,14 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
 
     return Column(
       children: [
-        LinearProgressIndicator(
-          value: (currentIndex + 1) / statuses.length,
-          backgroundColor: ColorConst.grey200,
-          valueColor: const AlwaysStoppedAnimation<Color>(ColorConst.green),
-          minHeight: 6.h,
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10.r),
+          child: LinearProgressIndicator(
+            value: (currentIndex + 1) / statuses.length,
+            backgroundColor: Colors.grey[200],
+            valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFFF5722)),
+            minHeight: 6.h,
+          ),
         ),
         SizedBox(height: 12.h),
         Row(
@@ -241,12 +367,25 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
             return Column(
               children: [
                 Container(
-                  width: 24.r, height: 24.r,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: isCompleted ? ColorConst.green : ColorConst.greyShade300),
-                  child: Center(child: isCompleted ? Icon(Icons.check, size: 14.r, color: ColorConst.white) : null),
+                  width: 24.r,
+                  height: 24.r,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isCompleted ? const Color(0xFFFF5722) : Colors.grey[300],
+                  ),
+                  child: Center(
+                    child: isCompleted ? Icon(Icons.check, size: 14.r, color: ColorConst.white) : null,
+                  ),
                 ),
                 SizedBox(height: 4.h),
-                Text(s, style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold, color: isCompleted ? ColorConst.black : ColorConst.grey)),
+                Text(
+                  s,
+                  style: GoogleFonts.poppins(
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.bold,
+                    color: isCompleted ? ColorConst.black : Colors.grey[500],
+                  ),
+                ),
               ],
             );
           }).toList(),
@@ -256,35 +395,69 @@ class OrderTrackingView extends GetView<OrderTrackingController> {
   }
 
   Widget _buildOrderItem(Map<String, dynamic> item) {
-    return Card(
+    return Container(
       margin: EdgeInsets.only(bottom: 12.h),
-      elevation: 1,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
-      child: Padding(
-        padding: EdgeInsets.all(12.r),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10.r),
-              child: Image.network(
-                item['image'], width: 70.w, height: 70.h, fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(width: 70.w, height: 70.h, color: ColorConst.grey200, child: Icon(Icons.fastfood, color: ColorConst.grey, size: 30.r)),
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: ColorConst.white,
+        borderRadius: BorderRadius.circular(18.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(12.r),
+            child: Image.network(
+              item['image'],
+              width: 70.w,
+              height: 70.h,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                width: 70.w,
+                height: 70.h,
+                color: Colors.grey[200],
+                child: const Icon(Icons.fastfood, color: Colors.grey, size: 30),
               ),
             ),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(item['name'], style: AppWidget.semiBoldFieldStyle(), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  SizedBox(height: 4.h),
-                  Text('Qty: ${item['quantity']}', style: TextStyle(color: ColorConst.grey600, fontSize: 12.sp)),
-                ],
-              ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item['name'],
+                  style: GoogleFonts.poppins(
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.bold,
+                    color: ColorConst.black,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  'Qty: ${item['quantity']}',
+                  style: GoogleFonts.poppins(color: Colors.grey[600], fontSize: 12.sp),
+                ),
+              ],
             ),
-            Text('₹${double.parse(item['price'].toString().replaceAll(RegExp(r'[^0-9.]'), '')).toStringAsFixed(2)}', style: AppWidget.semiBoldFieldStyle()),
-          ],
-        ),
+          ),
+          Text(
+            '₹${double.parse(item['price'].toString().replaceAll(RegExp(r'[^0-9.]'), '')).toStringAsFixed(2)}',
+            style: GoogleFonts.poppins(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFFFF5722),
+            ),
+          ),
+        ],
       ),
     );
   }

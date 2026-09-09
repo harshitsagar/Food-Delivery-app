@@ -43,8 +43,10 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           title: TextConst.appTitle,
           theme: ThemeData(
-            scaffoldBackgroundColor: Colors.transparent,
+            scaffoldBackgroundColor: const Color(0xFFFFF9E6),
             appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
               systemOverlayStyle: SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
                 statusBarIconBrightness: Brightness.dark,

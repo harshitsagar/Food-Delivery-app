@@ -111,7 +111,10 @@ class CartView extends GetView<CartController> {
                         physics: const BouncingScrollPhysics(),
                         itemBuilder: (context, index) {
                           DocumentSnapshot ds = snapshot.data!.docs[index];
-                          String totalString = ds["Total"].toString().replaceAll(RegExp(r'[^0-9.]'), '');
+                          final data = ds.data() as Map<String, dynamic>? ?? {};
+                          dynamic rawQty = data['Quantity'] ?? data['quantity'] ?? '1';
+                          dynamic rawTotal = data['Total'] ?? data['total'] ?? '0';
+                          String totalString = rawTotal.toString().replaceAll(RegExp(r'[^0-9.]'), '');
                           double itemTotal = double.tryParse(totalString) ?? 0.0;
 
                           return Container(
@@ -122,7 +125,7 @@ class CartView extends GetView<CartController> {
                               borderRadius: BorderRadius.circular(20.r),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -133,7 +136,7 @@ class CartView extends GetView<CartController> {
                               children: [
                                 // Quantity selector (+ / qty / -)
                                 Container(
-                                  width: 42.w,
+                                  width: 44.w,
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: const Color(0xFFFF5722),
@@ -145,9 +148,10 @@ class CartView extends GetView<CartController> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
                                         onTap: () => controller.updateQuantity(ds, true),
                                         child: Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 6.h),
+                                          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
                                           child: Text(
                                             "+",
                                             style: GoogleFonts.poppins(
@@ -160,12 +164,12 @@ class CartView extends GetView<CartController> {
                                       ),
                                       Container(
                                         height: 1.h,
-                                        color: const Color(0xFFFF5722).withOpacity(0.3),
+                                        color: const Color(0xFFFF5722).withValues(alpha: 0.3),
                                       ),
                                       Padding(
                                         padding: EdgeInsets.symmetric(vertical: 6.h),
                                         child: Text(
-                                          ds["Quantity"].toString(),
+                                          rawQty.toString(),
                                           style: GoogleFonts.poppins(
                                             fontSize: 14.sp,
                                             fontWeight: FontWeight.bold,
@@ -175,12 +179,13 @@ class CartView extends GetView<CartController> {
                                       ),
                                       Container(
                                         height: 1.h,
-                                        color: const Color(0xFFFF5722).withOpacity(0.3),
+                                        color: const Color(0xFFFF5722).withValues(alpha: 0.3),
                                       ),
                                       GestureDetector(
+                                        behavior: HitTestBehavior.opaque,
                                         onTap: () => controller.updateQuantity(ds, false),
                                         child: Padding(
-                                          padding: EdgeInsets.symmetric(vertical: 6.h),
+                                          padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 12.w),
                                           child: Text(
                                             "-",
                                             style: GoogleFonts.poppins(
@@ -200,7 +205,7 @@ class CartView extends GetView<CartController> {
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(16.r),
                                   child: Image.network(
-                                    ds["Image"].toString(),
+                                    (data['Image'] ?? data['image'] ?? '').toString(),
                                     height: 85.h,
                                     width: 85.w,
                                     fit: BoxFit.cover,
@@ -220,7 +225,7 @@ class CartView extends GetView<CartController> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        ds["Name"].toString(),
+                                        (data['Name'] ?? data['name'] ?? '').toString(),
                                         style: GoogleFonts.poppins(
                                           fontSize: 15.sp,
                                           fontWeight: FontWeight.bold,
@@ -244,9 +249,10 @@ class CartView extends GetView<CartController> {
 
                                 // Delete Trash Button
                                 GestureDetector(
+                                  behavior: HitTestBehavior.opaque,
                                   onTap: () => controller.removeCartItem(ds.id),
                                   child: Padding(
-                                    padding: EdgeInsets.all(6.r),
+                                    padding: EdgeInsets.all(8.r),
                                     child: Icon(
                                       Icons.delete_outline_rounded,
                                       color: const Color(0xFFFF5722),
@@ -270,7 +276,7 @@ class CartView extends GetView<CartController> {
                   left: 20.w,
                   right: 20.w,
                   top: 10.h,
-                  bottom: 30.h, // Bottom padding prevents overlap with curved bottom navigation bar
+                  bottom: 95.h, // Bottom padding prevents overlap with curved bottom navigation bar
                 ),
                 child: Column(
                   children: [
@@ -312,7 +318,7 @@ class CartView extends GetView<CartController> {
                                 ? []
                                 : [
                                     BoxShadow(
-                                      color: const Color(0xFFFF5722).withOpacity(0.3),
+                                      color: const Color(0xFFFF5722).withValues(alpha: 0.3),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),

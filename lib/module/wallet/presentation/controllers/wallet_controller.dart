@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:quick_eats_app/core/constant/color_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/services/shared_pref_service.dart';
+import 'package:quick_eats_app/module/cart/presentation/controllers/cart_controller.dart';
 import '../../domain/usecases/wallet_usecases.dart';
 
 class WalletController extends GetxController {
@@ -42,6 +43,13 @@ class WalletController extends GetxController {
       await SharedPreferenceHelper.saveUserWallet(newBalance.toString());
       
       walletBalance.value = newBalance.toString();
+
+      // Immediately sync with CartController if registered
+      if (Get.isRegistered<CartController>()) {
+        Get.find<CartController>().walletBalance.value = newBalance.toString();
+        Get.find<CartController>().refreshWalletBalance();
+      }
+
       Get.snackbar(TextConst.success, "Successfully added ₹$amountToAdd to wallet", backgroundColor: ColorConst.green, colorText: ColorConst.white);
     } catch (e) {
       Get.snackbar(TextConst.error, e.toString(), backgroundColor: ColorConst.red, colorText: ColorConst.white);

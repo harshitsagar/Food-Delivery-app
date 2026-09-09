@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:quick_eats_app/core/constant/app_url.dart';
 import 'package:quick_eats_app/core/constant/color_const.dart';
 import 'package:quick_eats_app/core/constant/text_const.dart';
 import 'package:quick_eats_app/core/routes/app_routes.dart';
@@ -43,7 +44,7 @@ class CartController extends GetxController {
   Future<void> loadCart() async {
     try {
       userId.value = await SharedPreferenceHelper.getUserId() ?? '';
-      walletBalance.value = await SharedPreferenceHelper.getUserWallet() ?? '0';
+      await refreshWalletBalance();
       
       if (userId.value.isNotEmpty) {
         foodStream.value = await getCartItemsUseCase.execute(userId.value);
@@ -55,22 +56,61 @@ class CartController extends GetxController {
     }
   }
 
+  Future<void> refreshWalletBalance() async {
+    if (userId.value.isEmpty) {
+      userId.value = await SharedPreferenceHelper.getUserId() ?? '';
+    }
+    if (userId.value.isEmpty) return;
+
+    // 1. Read local shared pref
+    String? localWallet = await SharedPreferenceHelper.getUserWallet();
+    if (localWallet != null && localWallet.isNotEmpty) {
+      walletBalance.value = localWallet;
+    }
+
+    // 2. Fetch live balance from Firestore
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection(AppUrl.usersCollection)
+          .doc(userId.value)
+          .get();
+      if (userDoc.exists && userDoc.data() != null) {
+        final userData = userDoc.data() as Map<String, dynamic>;
+        dynamic rawWallet = userData[AppUrl.walletField] ?? userData['wallet'] ?? userData['Wallet'];
+        if (rawWallet != null) {
+          String firestoreWallet = rawWallet.toString();
+          walletBalance.value = firestoreWallet;
+          await SharedPreferenceHelper.saveUserWallet(firestoreWallet);
+        }
+      }
+    } catch (e) {
+      print("Error refreshing wallet balance from Firestore: $e");
+    }
+  }
+
   void calculateTotal(QuerySnapshot snapshot) {
     double calculatedTotal = 0;
     for (var doc in snapshot.docs) {
-      String totalString = doc["Total"].toString().replaceAll(RegExp(r'[^0-9.]'), '');
-      calculatedTotal += double.tryParse(totalString) ?? 0;
+      final data = doc.data() as Map<String, dynamic>?;
+      if (data != null) {
+        dynamic rawTotal = data["Total"] ?? data["total"] ?? '0';
+        String totalString = rawTotal.toString().replaceAll(RegExp(r'[^0-9.]'), '');
+        calculatedTotal += double.tryParse(totalString) ?? 0;
+      }
     }
     totalAmount.value = calculatedTotal;
   }
 
   Future<void> removeCartItem(String docId) async {
+    if (userId.value.isEmpty) {
+      userId.value = await SharedPreferenceHelper.getUserId() ?? '';
+    }
     if (userId.value.isEmpty || docId.isEmpty) return;
     try {
       await FirebaseFirestore.instance
-          .collection('Users')
+          .collection(AppUrl.usersCollection)
           .doc(userId.value)
-          .collection('Cart')
+          .collection(AppUrl.cartCollection)
           .doc(docId)
           .delete();
     } catch (e) {
@@ -79,19 +119,30 @@ class CartController extends GetxController {
   }
 
   Future<void> updateQuantity(DocumentSnapshot ds, bool isIncrement) async {
+    if (userId.value.isEmpty) {
+      userId.value = await SharedPreferenceHelper.getUserId() ?? '';
+    }
     if (userId.value.isEmpty) return;
+
     try {
-      int currentQty = int.tryParse(ds["Quantity"].toString()) ?? 1;
-      double currentTotal = double.tryParse(ds["Total"].toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+      final data = ds.data() as Map<String, dynamic>?;
+      if (data == null) return;
+
+      dynamic rawQty = data['Quantity'] ?? data['quantity'] ?? '1';
+      int currentQty = int.tryParse(rawQty.toString()) ?? 1;
+
+      dynamic rawTotal = data['Total'] ?? data['total'] ?? '0';
+      double currentTotal = double.tryParse(rawTotal.toString().replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0.0;
+
       double unitPrice = currentQty > 0 ? currentTotal / currentQty : currentTotal;
 
       if (isIncrement) {
         int newQty = currentQty + 1;
         double newTotal = unitPrice * newQty;
         await FirebaseFirestore.instance
-            .collection('Users')
+            .collection(AppUrl.usersCollection)
             .doc(userId.value)
-            .collection('Cart')
+            .collection(AppUrl.cartCollection)
             .doc(ds.id)
             .update({
               'Quantity': newQty.toString(),
@@ -104,9 +155,9 @@ class CartController extends GetxController {
           int newQty = currentQty - 1;
           double newTotal = unitPrice * newQty;
           await FirebaseFirestore.instance
-              .collection('Users')
+              .collection(AppUrl.usersCollection)
               .doc(userId.value)
-              .collection('Cart')
+              .collection(AppUrl.cartCollection)
               .doc(ds.id)
               .update({
                 'Quantity': newQty.toString(),
@@ -120,7 +171,15 @@ class CartController extends GetxController {
   }
 
   Future<void> placeOrder() async {
-    if (isCheckingOut.value || userId.value.isEmpty) return;
+    if (isCheckingOut.value) return;
+
+    if (userId.value.isEmpty) {
+      userId.value = await SharedPreferenceHelper.getUserId() ?? '';
+    }
+    if (userId.value.isEmpty) return;
+
+    // Refresh live wallet balance before checkout
+    await refreshWalletBalance();
 
     if (totalAmount.value <= 0) {
       Get.snackbar(
@@ -198,16 +257,17 @@ class CartController extends GetxController {
     List<Map<String, dynamic>> items = [];
     try {
       var querySnapshot = await FirebaseFirestore.instance
-          .collection('Users')
+          .collection(AppUrl.usersCollection)
           .doc(userId.value)
-          .collection('Cart')
+          .collection(AppUrl.cartCollection)
           .get();
       for (var doc in querySnapshot.docs) {
+        final data = doc.data();
         items.add({
-          'name': doc['Name']?.toString() ?? 'Unknown',
-          'price': doc['Total']?.toString() ?? '0',
-          'quantity': doc['Quantity']?.toString() ?? '1',
-          'image': doc['Image']?.toString() ?? '',
+          'name': data['Name']?.toString() ?? data['name']?.toString() ?? 'Unknown',
+          'price': data['Total']?.toString() ?? data['total']?.toString() ?? '0',
+          'quantity': data['Quantity']?.toString() ?? data['quantity']?.toString() ?? '1',
+          'image': data['Image']?.toString() ?? data['image']?.toString() ?? '',
         });
       }
     } catch (e) {
