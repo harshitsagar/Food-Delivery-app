@@ -22,6 +22,12 @@ class AdminController extends GetxController {
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   
+  var obscurePassword = true.obs;
+
+  void togglePasswordVisibility() {
+    obscurePassword.value = !obscurePassword.value;
+  }
+
   // For Add Food
   final foodNameController = TextEditingController();
   final foodPriceController = TextEditingController();
