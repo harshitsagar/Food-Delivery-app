@@ -63,7 +63,7 @@ class WalletView extends GetView<WalletController> {
                       borderRadius: BorderRadius.circular(20.r),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.orange.withOpacity(0.06),
+                          color: Colors.orange.withValues(alpha: 0.06),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -150,7 +150,7 @@ class WalletView extends GetView<WalletController> {
                           borderRadius: BorderRadius.circular(16.r),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFF5722).withOpacity(0.3),
+                              color: const Color(0xFFFF5722).withValues(alpha: 0.3),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -190,7 +190,7 @@ class WalletView extends GetView<WalletController> {
           border: Border.all(color: Colors.black12, width: 1.w),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.02),
+              color: Colors.black.withValues(alpha: 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -209,11 +209,10 @@ class WalletView extends GetView<WalletController> {
   }
 
   void _showPaymentBottomSheet(String amount) {
-    controller.isProcessingPayment.value = false;
     Get.bottomSheet(
       Container(
         padding: EdgeInsets.all(20.r),
-        height: 0.6.sh,
+        height: 0.50.sh,
         decoration: BoxDecoration(
           color: ColorConst.white,
           borderRadius: BorderRadius.only(
@@ -237,63 +236,38 @@ class WalletView extends GetView<WalletController> {
                 ),
               ],
             ),
-            SizedBox(height: 20.h),
+            SizedBox(height: 16.h),
             Text(
               "${TextConst.amountPrefix}$amount",
-              style: GoogleFonts.poppins(fontSize: 18.sp, fontWeight: FontWeight.w600, color: const Color(0xFFFF5722)),
+              style: GoogleFonts.poppins(fontSize: 22.sp, fontWeight: FontWeight.bold, color: const Color(0xFFFF5722)),
             ),
-            SizedBox(height: 30.h),
-            Obx(() => controller.isProcessingPayment.value
-                ? const SizedBox()
-                : Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        TextConst.testPaymentMethod,
-                        style: GoogleFonts.poppins(fontSize: 16.sp, fontWeight: FontWeight.bold, color: ColorConst.black),
-                      ),
-                      SizedBox(height: 15.h),
-                      _buildPaymentMethod(
-                        icon: Icons.credit_card,
-                        title: TextConst.testCard,
-                        subtitle: TextConst.visaTest,
-                      ),
-                    ],
-                  )),
+            SizedBox(height: 24.h),
+            _buildPaymentMethod(
+              icon: Icons.payment_rounded,
+              title: "Online Payment Gateway",
+              subtitle: "UPI, Cards, Netbanking, Wallets",
+            ),
             const Spacer(),
-            Obx(() => controller.isProcessingPayment.value
-                ? Center(
-                    child: Column(
-                      children: [
-                        const CircularProgressIndicator(color: Color(0xFFFF5722)),
-                        SizedBox(height: 20.h),
-                        Text(
-                          TextConst.processingPayment,
-                          style: GoogleFonts.poppins(fontSize: 14.sp, color: Colors.grey[700]),
-                        ),
-                      ],
-                    ),
-                  )
-                : SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFFF5722),
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-                      ),
-                      onPressed: () async {
-                        controller.isProcessingPayment.value = true;
-                        await Future.delayed(const Duration(seconds: 2));
-                        Get.back();
-                        await controller.addMoneyToWallet(amount);
-                      },
-                      child: Text(
-                        "${TextConst.payPrefix}$amount",
-                        style: GoogleFonts.poppins(color: ColorConst.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  )),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFF5722),
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+                  elevation: 4,
+                ),
+                onPressed: () {
+                  Get.back();
+                  controller.openRazorpayCheckout(amount);
+                },
+                child: Text(
+                  "${TextConst.payPrefix}$amount",
+                  style: GoogleFonts.poppins(color: ColorConst.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+            SizedBox(height: 10.h),
           ],
         ),
       ),
@@ -303,22 +277,34 @@ class WalletView extends GetView<WalletController> {
 
   Widget _buildPaymentMethod({required IconData icon, required String title, required String subtitle}) {
     return Container(
-      padding: EdgeInsets.all(15.r),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        border: Border.all(color: ColorConst.greyShade300),
-        borderRadius: BorderRadius.circular(14.r),
+        color: const Color(0xFFFFF7ED),
+        border: Border.all(color: const Color(0xFFFF5722).withValues(alpha: 0.3)),
+        borderRadius: BorderRadius.circular(16.r),
       ),
       child: Row(
         children: [
-          Icon(icon, size: 30.r, color: const Color(0xFFFF5722)),
-          SizedBox(width: 15.w),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: GoogleFonts.poppins(fontSize: 15.sp, fontWeight: FontWeight.bold, color: ColorConst.black)),
-              Text(subtitle, style: GoogleFonts.poppins(fontSize: 13.sp, color: ColorConst.grey)),
-            ],
+          Container(
+            padding: EdgeInsets.all(10.r),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF5722).withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 26.r, color: const Color(0xFFFF5722)),
           ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: GoogleFonts.poppins(fontSize: 14.sp, fontWeight: FontWeight.bold, color: ColorConst.black)),
+                SizedBox(height: 2.h),
+                Text(subtitle, style: GoogleFonts.poppins(fontSize: 12.sp, color: Colors.grey[600])),
+              ],
+            ),
+          ),
+          Icon(Icons.check_circle, color: const Color(0xFFFF5722), size: 22.r),
         ],
       ),
     );
@@ -375,7 +361,7 @@ class WalletView extends GetView<WalletController> {
                     if (controller.amountController.text.isNotEmpty) {
                       String amount = controller.amountController.text;
                       Get.back();
-                      _showPaymentBottomSheet(amount);
+                      controller.openRazorpayCheckout(amount);
                     } else {
                       Get.snackbar(TextConst.error, TextConst.enterAmountError);
                     }
@@ -389,7 +375,7 @@ class WalletView extends GetView<WalletController> {
                     ),
                     child: Center(
                       child: Text(
-                        TextConst.pay,
+                        "Pay Now",
                         style: GoogleFonts.poppins(color: ColorConst.white, fontSize: 16.sp, fontWeight: FontWeight.bold),
                       ),
                     ),
