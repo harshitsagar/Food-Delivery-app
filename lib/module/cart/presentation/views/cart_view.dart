@@ -275,8 +275,8 @@ class CartView extends GetView<CartController> {
                 padding: EdgeInsets.only(
                   left: 20.w,
                   right: 20.w,
-                  top: 10.h,
-                  bottom: 95.h, // Bottom padding prevents overlap with curved bottom navigation bar
+                  top: 5.h,
+                  bottom: 30.h, // Bottom padding prevents overlap with curved bottom navigation bar
                 ),
                 child: Column(
                   children: [
