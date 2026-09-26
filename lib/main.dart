@@ -1,17 +1,30 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:quick_eats_app/pages/splash.dart';
-import 'package:quick_eats_app/widget/app_constant.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:quick_eats_app/core/constant/text_const.dart';
+import 'package:quick_eats_app/core/routes/app_pages.dart';
+import 'package:quick_eats_app/core/services/push_notification_service.dart';
+import 'package:quick_eats_app/core/services/shared_pref_service.dart';
 import 'firebase_options.dart';
 
 void main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
-  // Stripe.publishableKey = publishableKey;
+  
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.dark,
+      statusBarBrightness: Brightness.light,
+    ),
+  );
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await SharedPreferenceHelper.init();
+  await PushNotificationService.init();
 
   runApp(const MyApp());
 }
@@ -19,17 +32,34 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Food Delivery App',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: SplashScreen(),
+    return ScreenUtilInit(
+      designSize: const Size(375, 812), // Standard design size
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: TextConst.appTitle,
+          theme: ThemeData(
+            scaffoldBackgroundColor: const Color(0xFFFFF9E6),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.dark,
+                statusBarBrightness: Brightness.light,
+              ),
+            ),
+            colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF5722)),
+            useMaterial3: true,
+          ),
+          initialRoute: AppPages.initial,
+          getPages: AppPages.routes,
+        );
+      },
     );
   }
 }
