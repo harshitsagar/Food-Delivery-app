@@ -7,24 +7,66 @@ A full-featured Food Delivery mobile application built with **Flutter**, **GetX*
 ## 📸 App Screenshots
 
 ### 📱 User App
-<p align="center">
-  <img src="app_screenshots/user_app/1.jpeg" width="220" alt="User Screen 1"/>
-  <img src="app_screenshots/user_app/2.jpeg" width="220" alt="User Screen 2"/>
-  <img src="app_screenshots/user_app/3.jpeg" width="220" alt="User Screen 3"/>
-  <img src="app_screenshots/user_app/4.jpeg" width="220" alt="User Screen 4"/>
-</p>
-<p align="center">
-  <img src="app_screenshots/user_app/5.jpeg" width="220" alt="User Screen 5"/>
-  <img src="app_screenshots/user_app/6.jpeg" width="220" alt="User Screen 6"/>
-  <img src="app_screenshots/user_app/7.jpeg" width="220" alt="User Screen 7"/>
-</p>
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="300">
+      <img src="app_screenshots/user_app/1.jpeg" width="240"/>
+    </td>
+    <td align="center" width="300">
+      <img src="app_screenshots/user_app/2.jpeg" width="240"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="300">
+      <img src="app_screenshots/user_app/3.jpeg" width="240"/>
+    </td>
+    <td align="center" width="300">
+      <img src="app_screenshots/user_app/4.jpeg" width="240"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" width="300">
+      <img src="app_screenshots/user_app/5.jpeg" width="240"/>
+    </td>
+    <td align="center" width="300">
+      <img src="app_screenshots/user_app/6.jpeg" width="240"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2" width="300">
+      <img src="app_screenshots/user_app/7.jpeg" width="240"/>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
 
 ### 🛠️ Admin / Seller App
-<p align="center">
-  <img src="app_screenshots/seller_app/1.jpeg" width="220" alt="Seller Screen 1"/>
-  <img src="app_screenshots/seller_app/2.jpeg" width="220" alt="Seller Screen 2"/>
-  <img src="app_screenshots/seller_app/3.jpeg" width="220" alt="Seller Screen 3"/>
-</p>
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center" width="300">
+      <img src="app_screenshots/seller_app/1.jpeg" width="240"/>
+    </td>
+    <td align="center" width="300">
+      <img src="app_screenshots/seller_app/2.jpeg" width="240"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center" colspan="2" width="300">
+      <img src="app_screenshots/seller_app/3.jpeg" width="240"/>
+    </td>
+  </tr>
+</table>
+
+</div>
 
 ---
 
